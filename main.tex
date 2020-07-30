@@ -1,0 +1,249 @@
+\title{On-the-Fly $LTL_f$ Synthesis}
+\date{\today}
+\author{Shengping Xiao}
+\documentclass[10pt]{article}
+
+
+\usepackage{fullpage}
+\usepackage{times}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{fancyhdr,graphicx,amsmath,amssymb}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{xspace}
+
+\include{pythonlisting}
+\include{macros}
+
+\newtheorem{myDefinition}{Definition}
+\newtheorem{myTheorem}{Theorem}
+
+\renewcommand{\LTLf}{LTL$_f$\xspace}
+\renewcommand{\P}{\mathcal{P}}
+
+
+\begin{document}
+\maketitle
+\Large
+\begin{myDefinition}[\LTLf Synthesis]
+Let $\phi$ be an \LTLf formula with the atomic set $\P$ and $\X,\Y$ be two disjoint atomic sets such that $\X\cup \Y= \P$. $\X$ is the set of input variables and $\Y$ is the set of output variables. $\phi$ is realizable with respect to $\langle \X,\Y\rangle$ if there exists a strategy $g: (2^\X)^* \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k \geq 0$ such that $\rho\models\phi$ where $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)),\cdots,(X_k\cup g(X_0,\cdots,X_{k-1}))$. 
+\end{myDefinition}
+
+\begin{myDefinition}[Transition-based DFA~(TDFA)]
+The transition-based DFA $\mathcal{A}$ is defined as a tuple $\A = (\Sigma,S,s_0,\delta,T)$ where
+\begin{itemize}
+    \item $\Sigma$ is the set of alphabet;
+    \item $S$ is the set of states;
+    \item $s_0\in S$ is the initial state;
+    \item $\delta:S\times\Sigma\hookrightarrow S$ is the transition function, which is a partial function, i.e. a binary relation that associates each element in set $S\times \Sigma$ with at most one element in set $S$;
+    \item $T \subseteq \delta$ is the set of accepting transitions.
+\end{itemize}
+Given a finite trace  $\eta=a_0, a_1\cdots a_n \in \Sigma^+$, there is a corresponding transition run $s_0\times a_0\to s_1,s_1\times a_1\to s_2,\cdots,s_n\times a_n\to s_{n+1}$. The trace $\eta$ is accepted by TDFA $\mathcal{A}$ iff transition $s_n \times a_n\to s_{n+1}$ accepting such that $s_n \times a_n\to s_{n+1}\in T$.
+\end{myDefinition}
+
+\begin{myDefinition}[Winning State]
+\label{def:win_st}
+Given a TDFA $\mathcal{A} =(2^{\X\cup \Y},S,s_0,\delta,T)$, $s\in S$ is a winning state if:
+\begin{itemize}
+    \item there exists $Y \in 2^\Y$ such that for every $X \in 2^\X$, $\delta(s,X\cup Y)=s'$ is an accepting transition; \textbf{or}
+    \item there exists $Y \in 2^\Y$ such that for every $X \in 2^\X$, $\delta(s,X\cup Y)$ is a winning state or $\delta(s, X\cup Y)=s'$ is an accepting transition.
+\end{itemize}
+\end{myDefinition}
+
+\begin{myDefinition}[Failure State]
+Given a TDFA $\mathcal{A} =(2^{\X\cup \Y},S,s_0,\delta,T)$, $s\in S$ is a failure state if:
+\begin{itemize}
+    \item for every $Y \in 2^\Y$, there exists $X \in2^\X$ such that $\delta(s,X \cup Y)$ is undefined; \textbf{or}
+    \item for every $Y \in 2^\Y$, there exists $X \in2^\X$ such that $\delta(s,X \cup Y)$ is a failure state and $\delta(s,X \cup Y)=s'$ is not an accepting transition, or $\delta(s, X\cup Y)$ is undefined.
+\end{itemize}
+\end{myDefinition}
+
+\begin{myTheorem}
+Given a TDFA $\mathcal{A} =(2^{\X \cup \Y}, S, s_0, \delta, T)$ and a sub-TDFA $\mathcal{A}' =(2^{\X \cup \Y},$ $S',s_0,\delta',T')$ where $S'\subseteq S$, $\delta'\subseteq \delta$ and $T'\subseteq T$, if $\mathcal{A}'$ has a winning strategy, then $\mathcal{A}$ also has a winning strategy.
+
+\textbf{Comments: } To convince this theorem, we need to note that a winning strategy is a mapping ${(2^\X)}^*\to 2^\Y$ and the "\textbf{for every $X \in 2^\X$}" in definition~\ref{def:win_st}. Suppose sub-TDFA $\mathcal{A}'$ has a winning strategy, let us consider winning state $w$ of $\mathcal{A}'$. Starting from $w$, there exists $Y \in 2^\Y$ such that for every $X \in2^\X$, $(w, X \cup Y)$ will lead to winning. For example, if $|\X| = 2$ and we calculate that $Y = 01$ can satisfy the condition, then the moves $X \cup Y$ that satisfies the condition can be 0001, 0101, 1001 or 1101, i.e. combination of $2^\X$ and $y=01$. Therefore, if a state of sub-TDFA $\mathcal{A}'$ is judged as winning state, it should also be winning state in $\mathcal{A}$.
+\end{myTheorem}
+
+\begin{myTheorem}
+Given a TDFA $\mathcal{A} =(2^{\X \cup \Y}, S, s_0, \delta, T)$, we get the TDFA $\mathcal{A}'$ by removing failure states and transitions related to failure states from $\mathcal{A}$. $\mathcal{A}$ has a winning strategy iff $\mathcal{A}'$ has a winning strategy.
+\end{myTheorem}
+
+\begin{algorithm}[h]
+\Large
+\caption{Declare and Initialize Global Variables}
+\label{algo:init}
+Global $S=\emptyset$;   \tcp{the set of automaton states}
+Global $\delta=\emptyset$;  \tcp{the set of automaton transitions}
+Global $winning\_state\coloneqq\emptyset$\;
+Global $failure\_state\coloneqq\emptyset$\;
+Global $to\_expand \coloneqq\emptyset$\;
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
+\caption{On-the-Fly $LTL_f$ synthesis}
+\label{algo:syn}
+\KwIn{$LTL_f$ formula $f$}
+\KwOut{True or False}
+$to\_expand \coloneqq\{f\}$\;
+\While{$to\_expand\neq\emptyset$}
+{
+    get and remove $\phi$ from $to\_expand$\;
+    $<new\_state,new\_trans>\coloneqq expand(\phi)$\;
+    $S\coloneqq S\cup new\_state$\;
+    $\delta\coloneqq \delta\cup new\_trans$\;
+    \If{is\_winning($\phi$)}
+    {
+        compute\_winning\_state($\phi$)\;
+        \If{$f\in winning\_state$}
+        {
+            return True\;
+        }
+    }
+    \ElseIf{is\_failure($\phi$)}
+    {
+        compute\_failure\_state($\phi$)\;
+        \If{$f\in failure\_state$}
+        {
+            return False\;
+        }
+        
+    }
+}
+return False\;   
+
+\end{algorithm}
+
+
+\begin{algorithm}[h]
+\Large
+\caption{expand}
+\label{algo:expand}
+\KwIn{$LTL_f$ formula $f$}
+\KwOut{$new\_state$, $new\_trans$}
+$new\_state\coloneqq\emptyset$\;
+$new\_trans\coloneqq\emptyset$\;
+$f'\coloneqq f^p$\;
+let $label\_next$ be a map\;
+\While{$f'$ is satisfiable}
+{
+    get a model $A$ of $f'$\;
+    get $<Label,Next>$ from $A$\;
+    \If{$label\_next[Label]=NULL$}
+    {
+        $label\_next[Label]\coloneqq Next$\;
+    }
+    \Else
+    {
+        $label\_next[Label]\coloneqq label\_next[Label]\vee Next$\;
+    }
+    $f'\coloneqq f'\wedge(\neg(\wedge A))$\;
+}
+\For{$<Label,Next>$ in $label\_next$}
+{
+    $new\_state\coloneqq new\_state\cup\{Next\}$\;
+    $new\_trans\coloneqq new\_trans\cup\{f\times Label\to Next\}$\;
+}
+return $new\_state$, $new\_trans$\;
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
+\caption{is\_winning}
+\label{algo:is_win}
+\KwIn{an expanded state $s$}
+\KwOut{True or False}
+$trans\coloneqq\{s_1\times\omega\to s_2\in\delta|\ s_1=s\}$\;
+\For{$y$ in $2^Y$}
+{
+    $flag\coloneqq True$\;
+    \For{$x$ in $2^X$}
+    {
+        \If{$((s_1\times (x\cup y)\to s_2\notin trans)$ $\vee((s_1\times (x\cup y)\to s_2\ is\ not\ accepting)\wedge(\delta(s_1,x\cup y)\notin winning\_state)))$}
+        {
+            $flag\coloneqq False$\;
+            break\;
+        }
+    }
+    \If{$flag=True$}
+    {
+        return True\;
+    }
+    
+}
+return False\;
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
+\caption{is\_failure}
+\label{algo:is_fail}
+\KwIn{an expanded state $s$}
+\KwOut{True or False}
+$trans\coloneqq\{s_1\times\omega\to s_2\in\delta|\ s_1=s\}$\;
+\For{$y$ in $2^Y$}
+{
+    $flag\coloneqq True$\;
+    \For{$x$ in $2^X$}
+    {
+        \If{$(s_1\times (x\cup y)\to s_2\notin trans)\vee(s_1\times (x\cup y)\to s_2\ is\ not\ accepting\wedge\delta(s_1,x\cup y)\in failure\_state)$}
+        {
+            $flag\coloneqq False$\;
+            break\;
+        }
+    }
+    \If{$flag=True$}
+    {
+        return False\;
+    }
+}
+return True\;
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
+\caption{compute\_winning\_state}
+\label{algo:comput_win}
+\KwIn{a new winning state: $w$}
+$winning\_state\coloneqq winning\_state\cup\{w\}$\;
+$new\_win\coloneqq \{w\}$\;
+\While{$new\_win\neq \emptyset$}
+{
+    get and remove $s$ from $new\_win$\;
+    $predecessor\coloneqq\{p|p\times\omega\to s\in \delta\}$\;
+    \For{p in $predecessor$}
+    {
+        \If{is\_winning(p)}
+        {
+            $winning\_state\coloneqq winning\_state\cup\{p\}$\;
+            $new\_win\coloneqq new\_win\cup\{p\}$\;
+        }
+    }
+}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
+\caption{compute\_failure\_state}
+\label{algo:comput_fail}
+\KwIn{a new failure state: $f$}
+$failure\_state\coloneqq failure\_state\cup\{f\}$\;
+$new\_fail\coloneqq \{f\}$\;
+remove $f$ from $to\_expand$\;
+\While{$new\_fail\neq \emptyset$}
+{
+    get and remove $s$ from $new\_fail$\;
+    $predecessor\coloneqq\{p|p\times\omega\to s\in \delta\}$\;
+    \For{p in $predecessor$}
+    {
+        \If{is\_failure(p)}
+        {
+            $failure\_state\coloneqq failure\_state\cup\{p\}$\;
+            $new\_fail\coloneqq new\_fail\cup\{p\}$\;
+            remove $p$ from $to\_expand$\;
+        }
+    }
+}
+\end{algorithm}
+
+\end{document}
