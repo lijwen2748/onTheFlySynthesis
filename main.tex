@@ -70,6 +70,85 @@ Given a TDFA $\mathcal{A} =(2^{\X \cup \Y}, S, s_0, \delta, T)$, we get the TDFA
 
 \begin{algorithm}[h]
 \Large
+\caption{Synthesis}
+\label{algo:newSyn}
+\KwIn{\LTLf formula $f$}
+\KwOut{Realizable or Unrealizable}
+$peek\coloneqq pre\_judge(f)$\;
+\If{$peek\neq unknown$}
+{
+    return $peek$\;
+}
+\While{true}
+{
+    $\left<\omega,s\right>\coloneqq get\_trans(f,null)$\;
+    \If{$\left<\omega,s\right>=null$}
+    {
+        return Unrealizable\;
+    }
+    $f'\coloneqq f$\;
+    \While{true}
+    {
+        \If{$s$ cause a loop}
+        {
+            break\;
+        }
+        \If{$\omega\models f'$}
+        {
+            $f'\coloneqq f'\wedge(\neg(\omega|_{\X}))$\;
+        }
+        \Else
+        {
+            $result\coloneqq Synthesis(s)$\;
+            \If{$result=Realizable$}
+            {
+                $f'\coloneqq f'\wedge(\neg(\omega|_{\X}))$\;
+            }
+            \Else
+            {
+                break\;
+            }
+        }
+        $\left<\omega,s\right>\coloneqq get\_trans(f',\omega|_\Y)$\;
+        \If{$\left<\omega,s\right>=null$}
+        {
+            return Realizable\;
+        }
+    }
+    $f\coloneqq f\wedge(\neg(\omega|_{\Y}))$\;
+}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
+\caption{get\_trans}
+\KwIn{\LTLf formula $f$, set of literals $assumption$}
+\KwOut{$\left<label,next\right>$}
+$f\coloneqq f\wedge\left(\bigwedge assumption\right)$\;
+$f^p\coloneqq(xnf(f))^p$\;
+\While{$f^p$ is satisfiable}
+{
+    get a model $\M$ from $f^p$\;
+    \If{$\M|_\Y\models f^p|_{\X\cup\Y}$}
+    {
+        $label\coloneqq L(\M)$\;
+        $next\coloneqq X(\M)$\;
+        break\;
+    }
+    $f^p\coloneqq f^p\wedge\left(\neg\bigwedge\M|_\Y\right)$\;
+}
+$f^p\coloneqq f^p\wedge label\wedge(\neg next)$\;
+\While{$f^p$ is satisfiable}
+{
+    get a model $\M$ from $f^p$\;
+    $next\coloneqq next\vee X(\M)$\;
+    $f^p\coloneqq f^p\wedge(\neg (X(\M)))$\;
+}
+return $\left<label,next\right>$\;
+\end{algorithm}
+
+\begin{algorithm}[h]
+\Large
 \caption{Declare and Initialize Global Variables}
 \label{algo:init}
 Global $S=\emptyset$;   \tcp{the set of automaton states}
