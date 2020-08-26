@@ -1,0 +1,19 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{{De Giacomo} and Vardi}{2013}]{GV13}
+{De Giacomo}, G., and Vardi, M.
+\newblock 2013.
+\newblock Linear temporal logic and linear dynamic logic on finite traces.
+\newblock In {\em IJCAI},  2000--2007.
+\newblock AAAI Press.
+
+\bibitem[\protect\citeauthoryear{Li \bgroup et al\mbox.\egroup
+  }{2019}]{LRPZV19}
+Li, J.; Rozier, K.~Y.; Pu, G.; Zhang, Y.; and Vardi, M.~Y.
+\newblock 2019.
+\newblock Sat-based explicit ltlf satisfiability checking.
+\newblock In {\em The Thirty-Third {AAAI} Conference on Artificial
+  Intelligence},  2946--2953.
+\newblock {AAAI} Press.
+
+\end{thebibliography}

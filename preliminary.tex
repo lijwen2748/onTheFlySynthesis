@@ -1,8 +1,8 @@
 
 %\section {Preliminaries}\label{sec:pre}
 
-\section{LTL over Finite Traces}\label{sec:pre}
-Given a set $\mathcal{P}$ of atomic propositions, an $\ltlf$ formula
+\section{Preliminaries}\label{sec:pre}
+Given a set $\mathcal{P}$ of atomic propositions, an \ltlf formula
 $\phi$ has the form:
 
 %$\phi ::= \true\ |\ \ff\ |\ p\ |\ \neg \phi\ |\ \phi\vee\phi\ |\ \phi\wedge\phi\|\ X\phi\ |\ N\phi\ |\ \phi U\phi\ |\ \phi R\phi$,
@@ -18,90 +18,47 @@ $\N$ (weak Next) for $\X$ and $\R$ for $\U$. A \emph{literal} is an atom $p\in\m
 Notably, $\X$ is the standard \emph{next} operator, while $\N$ is \emph{weak next}; 
 $\X$ requires the existence of a successor state, while $\N$ does not. 
 Thus $\N\phi$ is always true in the last state of a finite trace, since no successor exists there.
-This distinction is specific to $\ltlf$.
+This distinction is specific to \ltlf.
 
-$\ltlf$ formulas are interpreted over finite traces \cite{GV13}.
+\ltlf formulas are interpreted over finite traces \cite{GV13}.
 Given an atom set $\mathcal{P}$, we define $\Sigma = 2^{\mathcal{P}}$ be  the family of sets of atoms. Let
-$\xi\in\Sigma^+$ be a finite nonempty trace, with $\xi=\sigma_0\sigma_1\ldots\sigma_n$. we use
-$|\xi|=n+1$ to denote the length of $\xi$. Moreover, for $0\leq
-i\leq n$, we denote $\xi[i]$ as the i-th position of $\xi$, and 
-$\xi_i$ to represent $\sigma_i\sigma_{i+1}\ldots\sigma_n$, which is
-the suffix of $\xi$ from position~$i$. We define the satisfaction relation $\xi\models\phi$ as follows:
+$\eta\in\Sigma^+$ be a finite nonempty trace, with $\eta=\sigma_0\sigma_1\ldots\sigma_n$. we use
+$|\eta|=n+1$ to denote the length of $\eta$. Moreover, for $0\leq
+i\leq n$, we denote $\eta[i]$ as the i-th position of $\eta$, and 
+$\eta_i$ to represent $\sigma_i\sigma_{i+1}\ldots\sigma_n$, which is
+the suffix of $\eta$ from position~$i$. We define the satisfaction relation $\eta\models\phi$ as follows:
 
 \begin{itemize}%[noitemsep,topsep=0pt]
-  \item $\xi\models\true$; and $\xi\models p$, if $p\in\mathcal{P}$ and $p\in\xi[0]$;
-  \item $\xi\models\neg\phi$, if $\xi\not\models\phi$;
-  \item $\xi\models\phi_1\wedge\phi_2$,  if $\xi\models\phi_1$ and $\xi\models\phi_2$;
-  %\item If $\phi=\phi_1\vee\phi_2$, $\xi\models\phi$ if $\xi\models\phi_1$ or $\xi\models\phi_2$.
-  \item $\xi\models \X\phi$ if $|\xi|>1$ and $\xi_1\models\psi$;
-  %\item If $\phi=N\psi$, $\xi\models\phi$ if $|\xi|>1$ implies $\xi_1\models\psi$;
-  \item $\xi\models (\phi_1 \U\phi_2)$, if there exists $0\leq i < |\xi|$
-  such that $\xi_i\models\phi_2$ and for every $0\leq j < i$ it holds that $\xi_j\models\phi_1$;
- % \item If $\phi=(\phi_1 R\phi_2)$, $\xi\models\phi$ if for every $0\leq i <|\xi|$ either $\xi_i\models\phi_2$ or for
-  %some $0\leq j < i$ it holds that $\xi_j\models\phi_1$.
+  \item $\eta\models\true$; and $\eta\models p$, if $p\in\mathcal{P}$ and $p\in\eta[0]$;
+  \item $\eta\models\neg\phi$, if $\eta\not\models\phi$;
+  \item $\eta\models\phi_1\wedge\phi_2$,  if $\eta\models\phi_1$ and $\eta\models\phi_2$;
+  %\item If $\phi=\phi_1\vee\phi_2$, $\eta\models\phi$ if $\eta\models\phi_1$ or $\eta\models\phi_2$.
+  \item $\eta\models \X\phi$ if $|\eta|>1$ and $\eta_1\models\psi$;
+  %\item If $\phi=N\psi$, $\eta\models\phi$ if $|\eta|>1$ implies $\eta_1\models\psi$;
+  \item $\eta\models (\phi_1 \U\phi_2)$, if there exists $0\leq i < |\eta|$
+  such that $\eta_i\models\phi_2$ and for every $0\leq j < i$ it holds that $\eta_j\models\phi_1$;
+ % \item If $\phi=(\phi_1 R\phi_2)$, $\eta\models\phi$ if for every $0\leq i <|\eta|$ either $\eta_i\models\phi_2$ or for
+  %some $0\leq j < i$ it holds that $\eta_j\models\phi_1$.
   \end{itemize}
 
 
-\begin{definition}[$\ltlf$ Satisfiability Problem]
-Given an $\ltlf$ formula $\phi$ over the alphabet $\Sigma$,
-we say $\phi$ is satisfiable iff there is a finite nonempty trace
-$\xi\in\Sigma^+$ such that $\xi\models\phi$.
+\begin{definition}[\ltlf Synthesis]\label{def:synthesis}
+Let $\phi$ be an \ltlf formula with the atomic set $\P$ and $\X,\Y$ be two disjoint atomic sets such that $\X\cup \Y= \P$. $\X$ is the set of input variables and $\Y$ is the set of output variables. $\phi$ is realizable with respect to $\langle \X,\Y\rangle$ if 
+\begin{itemize}
+\item for the \textbf{Environment-first} synthesis, there exists a strategy $g: (2^\X)^* \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k \geq 0$ such that $\rho\models\phi$ is true, where $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)),\cdots,(X_k\cup g(X_0,\cdots,X_{k-1}))$. ($\epsilon$ means the empty trace.) 
+\item for the \textbf{System-first} synthesis, there exists a strategy $g: (2^\X)^+ \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k \geq 1$ such that $\rho\models\phi$ is true, where $\rho=(X_0\cup g(X_0)),(X_1\cup g(X_1)),\cdots,(X_k\cup g(X_0,\cdots,X_{k}))$. 
+\end{itemize}
 \end{definition}
 
-\noindent\textbf{Notations.}
-%The \textit{closure} of an $\ltlf$ formula $\phi$, denoted as $cl(\phi)$,  is a formula set such that: (1) $\phi$ is in $cl(\phi)$;  (2) $\psi$ is in $cl(\phi)$ if $\phi=X\psi/N\psi$ or $\phi=\neg\psi$; (3) $\phi_1,\phi_2$ are in $cl(\phi)$ if $\phi=\phi_1\  o\ \phi_2$, where $o$ can be $\wedge,\vee,U$ and $R$. We say each $\psi$ in $cl(\phi)$, is a \textit{subformula}  of $\phi$.  
+In this paper, we focus on the \textbf{Environment-frist} \ltlf synthesis. Also, we fix the notations $\X$ and $\Y$ for the variables controlled by the environment and system respectively in the \ltlf synthesis.
+
+\noindent\textbf{Notations.} 
+We say an \ltlf formula is in the \emph{Negated Normal Form} (\NNF), if the negation operators appear only in front of an atom. It is trivial to know that every \ltlf formula can be converted into its \NNF at a linear cost. 
 We use $cl(\phi)$ to denote the set of subformulas of $\phi$. 
-Let $A$ be a set of $\ltlf$ formulas, we denote $\bigwedge A$ to be the formula $\bigwedge_{\psi\in A}\psi$.
-The two $\ltlf$ formulas $\phi_1,\phi_2$ are semantically equivalent, denoted as $\phi_1\equiv\phi_2 $, iff for every finite trace $\xi$, $\xi\models\phi_1$ iff $\xi\models\phi_2$.  Obviously, we have $(\phi_1\vee\phi_2)\equiv \neg (\neg\phi_1 \wedge\neg \phi_2)$, 
+Let $A$ be a set of \ltlf formulas, we denote $\bigwedge A$ to be the formula $\bigwedge_{\psi\in A}\psi$.
+The two \ltlf formulas $\phi_1,\phi_2$ are semantically equivalent, denoted as $\phi_1\equiv\phi_2 $, iff for every finite trace $\eta$, $\eta\models\phi_1$ iff $\eta\models\phi_2$.  Obviously, we have $(\phi_1\vee\phi_2)\equiv \neg (\neg\phi_1 \wedge\neg \phi_2)$, 
 $\N\psi\equiv \neg \X\neg\psi$ and $(\phi_1 \R\phi_2)\equiv \neg (\neg\phi_1 \U\neg \phi_2)$.
 
-We say an $\ltlf$ formula $\phi$ is in \emph{Tail Normal Form} (TNF) if $\phi$ is in \emph{Negated Normal Form} (NNF) and $\N$-free. 
-It is trivial to know that every $\ltlf$ formula 
-has an equivalent NNF. Assume $\phi$ is in NNF, $\tnf{\phi}$ is defined as $t(\phi)\wedge \F Tail$, where $Tail$ 
-is a new atom to identify the last state of satisfying traces (Motivated from \cite{GV13}), and $t(\phi)$ is an $\ltlf$ formula defined recursively as follows: (1) $t(\phi) = \phi$ if $\phi$ is $\true,\ff$ or a literal; 
-(2) $t(\X\psi) = \neg Tail \wedge \X (t(\psi))$; (3) $t(\N\psi) = Tail\vee \X(t(\psi))$; (4) $t(\phi_1\wedge\phi_2) = t(\phi_1)\wedge t(\phi_2)$; (5) $t(\phi_1\vee\phi_2) = t(\phi_1)\vee t(\phi_2)$; (6) $t(\phi_1 \U\phi_2) = (\neg Tail\wedge t(\phi_1)) \U t(\phi_2)$; (7) $t(\phi_1 \R\phi_2) = (Tail\vee t(\phi_1)) \R t(\phi_2)$. 
 
-%From the construction above, the size of $\tnf{\phi}$ is linear to that of $\phi$, and the following theorem shows $\phi$ and $\tnf{\phi}$ 
-%are equi-satisfiable.
 
-\begin{theorem}\label{thm:tnf}
-    $\phi$ is satisfiable iff $\tnf{\phi}$ is satisfiable.
-\end{theorem}
-\iffalse
-\begin{proof}
-(Sketch.) Let $\xi,\xi'$ be two non-empty finite traces satisfying $|\xi| = |\xi'|$ and $\xi'[i] = \xi[i]$ for $0\leq i< |\xi|-1$ as well as $\xi'[|\xi|-1] = \xi[|\xi|-1]\cup\{Tail\}$. We can prove by induction over the type of $\phi$ that $\xi\models\phi$ iff $\xi'\models\tnf{\phi}$. For the ($\Leftarrow$) direction, we complement the proof that $\tnf{\phi}$ is satisfiable implies there is such a $\xi'$ that $\xi'\models\tnf{\phi}$. 
-\end{proof}
-\fi
-
-%Based on this theorem, it allows us to consider the input $\ltlf$ formula of our checking algorithm to be TNF. 
-In the rest of the paper, unless clearly specified, the input $\ltlf$ formula is in TNF. 
-
-%In the rest of the paper, we assume all considered $\ltlf$ formulas are in TNF, and the aforementioned theorem guarantees the 
-%satisfiability-checking result preserves when we consider $\tnf{\phi}$ instead of $\phi$.
-
-\iffalse
-In the rest of this paper, we consider $\ltlf$ formulas to be in NNF (Negation Normal Form) and N-free, i.e., they contain no $N$-operators and $\neg$ appears only in front of atoms. For a given $\ltlf$ formula $\phi_1$, we know there is a NNF $\phi_2$ such that $\phi_1\equiv\phi_2$.
-  From the NNF formula $\phi$, we can generate a 
-N-free formula $t(\phi)$ recursively as follows: (1) $t(\phi) = \phi$ if $\phi$ is $\true,\ff$ or a literal; 
-(2) $t(X\psi) = \neg Tail \wedge X (t(\psi))$; (3) $t(N\psi) = Tail\vee X(t(\psi))$; (4) $t(\phi_1\wedge\phi_2) = t(\phi_1)\wedge t(\phi_2)$; (5) $t(\phi_1\vee\phi_2) = t(\phi_1)\vee t(\phi_2)$; (6) $t(\phi_1 U\phi_2) = (\neg Tail\wedge t(\phi_1)) U t(\phi_2)$; (7) $t(\phi_1 R\phi_2) = (Tail\vee t(\phi_1)) R t(\phi_2)$. 
-\iffalse
-\begin{itemize}
-    \item $t(\phi) = \phi$ if $\phi$ is $\true,\ff$ or a literal;
-    \item $t(X\psi) = \neg Tail \wedge X (t(\psi))$;
-    \item $t(N\psi) = Tail\vee X(t(\psi))$;
-    \item $t(\phi_1\wedge\phi_2) = t(\phi_1)\wedge t(\phi_2)$;
-    \item $t(\phi_1\vee\phi_2) = t(\phi_1)\vee t(\phi_2)$;
-    \item $t(\phi_1 U\phi_2) = (\neg Tail\wedge t(\phi_1)) U t(\phi_2)$;
-    \item $t(\phi_1 R\phi_2) = (Tail\vee t(\phi_1)) R t(\phi_2)$.
-\end{itemize}
-\fi
-
-In the construction, $Tail$ is a new atom to identify the last state of satisfying traces (Motivated from \cite{GV13}).
-%\footnote{$Tail$ here is used as an opposite meaning to that in \cite{GV13} to gain a more nature sense.} 
-Let $\phi' = t(\phi)\wedge FTail$, and obviously $\phi'$ is in NNF and N-free. 
-Moreover, we can prove that $\phi$ and $\phi'$ are equi-satisfiable:
-Let $\xi,\xi'$ are two non-empty finite traces satisfying $|\xi| = |\xi'|$ and $\xi'[i] = \xi[i]\cup\{\neg Tail\}$ for $0\leq i< |\xi|-1$ as well as $\xi'[|\xi|-1] = \xi[|\xi|-1]\cup\{Tail\}$. Then we can prove that $\xi\models\phi$ iff $\xi'\models\phi'$ by induction over the type of $\phi$. 
-Therefore, if the input formula is $\phi$ in NNF, the satisfiability-checking result preserves when considering the input formula as $\phi'$ instead, and this is what we follow from now on.
-%Thus, the main connective of a formula  has the type of $\true$, $\ff$, literal, $\wedge$, $\vee$, $X$, $N$, $U$ and $R$.
-\fi
 
