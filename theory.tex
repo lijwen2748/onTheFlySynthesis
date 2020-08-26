@@ -154,41 +154,40 @@ Informally speaking, a winning state in the \tdfa is a state whose out-going tra
 
 \begin{theorem}\label{thm:winning-and-failure}
 Given a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$, $s_0$ is a winning state iff the controller is winning for the game.
-
 \end{theorem}
 \begin{proof}
 \textcolor{red}{to be done.}
 \end{proof}
 
-
+An important question raises up that how do we know the initial state is a \emph{winning state}? Traditional synthesis approaches \cite{GV15} first construct the whole \dfa for the input formula, and then present a fixpoint calculation back from the accepting states, for the reason that those accepting states are obviously winning states. The calculation recursively marks the states that have a winning strategy to those winning states as winning, and terminates as soon as no more states can be marked. The controller is winning for the game if the initial state $s_0$ is in the computed winning set. The main drawback of such methodology is the winning strategy can only be computed after the \dfa is generated.  
 
 
 \begin{algorithm}
 \caption{\tool: Compute the winning strategy on the fly}
-\label{algo:newSyn}
+\label{alg:win}
 	\begin{algorithmic}[1]
 		\REQUIRE{An \ltlf formula $\phi$ with $\X$ and $\Y$;}
 		\ENSURE{$\Omega=\{\langle s, Y, \{\langle X, s'\rangle\}\rangle\}$ if $\phi$ is realizable, otherwise return $\emptyset$;\COMMENT{\textcolor{blue}{$s,s'\in S$, $X\in 2^{\X}$ and $Y\in 2^{\Y}$}}}
 		
-		\STATE Let $\langle ret, \Omega\rangle\coloneqq preprocess(\phi, \X, \Y)$;\COMMENT{\textcolor{blue}{Check by the pre-processing techniques at first}}
+		\STATE Let $\langle ret, \Omega\rangle\coloneqq preprocess(\phi, \X, \Y)$;\COMMENT{\textcolor{blue}{Check by the pre-processing techniques at first}}\label{alg:win:preprocess-start}
 		\IF{$ret\neq unknown$}
     		\RETURN $\Omega$;
-    	\ENDIF
-    	\WHILE{true}
+    	\ENDIF\label{alg:win:preprocess-end}
+    	\WHILE{true\COMMENT{\textcolor{blue}{Enumerate $Y$ inside}}}\label{alg:win:Yloop-start}
     		\STATE $\langle \omega,s\rangle\coloneqq getTransition(\phi,\emptyset)$;\COMMENT{\textcolor{blue}{Get the transition $\phi\tran{\omega}s$}}
     		\IF{$\langle \omega,s\rangle =\emptyset$}
         		\RETURN $\emptyset$;
     		\ENDIF
     	\STATE Let $\phi'\coloneqq \phi$ and $r \coloneqq \langle \phi, Y=\omega|_{\Y}, Q=\{\langle \omega|_{\X}, s\rangle\}\rangle$;
     	\STATE Push $r$ into $\Omega$;
-    	\WHILE{true\COMMENT{\textcolor{blue}{Fix $Y=\omega|_{\Y}$, enumerate $X$ inside}}}
-        	\IF{$s$ has been generated\COMMENT{\textcolor{blue}{A loop is detected}}}
+    	\WHILE{true\COMMENT{\textcolor{blue}{Fix $Y=\omega|_{\Y}$, enumerate $X$ inside}}}\label{alg:win:Xloop-start}
+        	\IF{$s$ has been generated\COMMENT{\textcolor{blue}{A loop is detected}}}\label{alg:win:loop-detect}
             	\BREAK;\COMMENT{\textcolor{blue}{The chosen $Y$ is not OK}}
             \ENDIF
         	\IF{$\omega\models \phi'$\COMMENT{\textcolor{blue}{An accepting transition is detected}}}
             	\STATE $\phi'\coloneqq \phi'\wedge(\neg(\omega|_{\X}))$;\COMMENT{\textcolor{blue}{Enumerate $X$}}
         	\ELSE
-            	\STATE Let $\Omega'\coloneqq \tool(s, \X, \Y)$;
+            	\STATE Let $\Omega'\coloneqq \tool(s, \X, \Y)$;\label{alg:win:recursive}
             	\IF{$\Omega'\not = \emptyset$\COMMENT{\textcolor{blue}{$s$ is a winning state}}}	
                 	\STATE $\phi'\coloneqq \phi'\wedge(\neg(\omega|_{\X}))$;\COMMENT{\textcolor{blue}{Enumerate $X$}}
             	\ELSE
@@ -198,16 +197,25 @@ Given a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$, $s_0$ is a winning st
         	\ENDIF
         	\STATE $\langle\omega',s'\rangle\coloneqq getTransition(\phi',\omega|_\Y)$;\COMMENT{\textcolor{blue}{Get the transition $\phi\tran{\omega'}s'$ such that $\omega|_{\Y}\subseteq \omega'$}}
         	\IF{$\langle\omega',s'\rangle=\emptyset$\COMMENT{\textcolor{blue}{Enumerating $X$ is finished}}}
-            	\RETURN $\Omega$;
+            	\RETURN $\Omega$;\label{alg:win:loop-stop}
             \ELSE
             	\STATE Update $r=\langle \phi, Y, Q\rangle$ by pushing $\langle \omega'|_{\X}, s'\rangle$ into $Q$;
         	\ENDIF
-    	\ENDWHILE
+    	\ENDWHILE\label{alg:win:Xloop-end}
     	\STATE Remove $r$ from $\Omega$;
-    	\STATE $\phi\coloneqq \phi\wedge(\neg(\omega|_{\Y}))$;\COMMENT{\textcolor{blue}{Enumerate $Y$}}
-	\ENDWHILE
+    	\STATE $\phi\coloneqq \phi\wedge(\neg(\omega|_{\Y}))$;\COMMENT{\textcolor{blue}{Enumerate $Y$}}\label{alg:win:chooseY}
+	\ENDWHILE\label{alg:win:Yloop-end}
 	\end{algorithmic}
 \end{algorithm}
+
+In this paper, we present a new technique that compute the winning strategy on the fly. The algorithm \tool, which is shown in Algorithm \ref{alg:win}, describes the main procedures of the new technique. While comments are blue-colored in the body to help understand the algorithm, we summarize the crucial parts of the technique as follow.
+
+The algorithm $\tool$ takes a tuple $(\phi, \X, \Y)$ as the input and outputs a set $\Omega$ which contains the winning strategy information if exists, or an empty set. Each element of $\Omega$ has the form of $\langle s, Y, \{\langle X, s'\rangle\}\rangle$, where $s,s'\in S$, $X\in 2^{\X}$ and $Y\in 2^{\Y}$. Such element indicates that from state $s$, the winning action for the controller is $Y$ for an arbitrary $X$. Moreover, Given an $X\in 2^{\X}$, it also tells the next state for the controller to win is $s'$, i.e., $s\tran{X\cup Y}s'$ is a transition of the \tdfa and $s'$ is a winning state as well.
+
+\tool starts with the preprocessing techniques from Line \ref{alg:win:preprocess-start} to \ref{alg:win:preprocess-end}. The \emph{preprocess} function implements Theorem \ref{thm:sat-syn}-\ref{thm:failure-2}, and $\tool$ returns immediately if the function succeeds to determine $\phi$ is a winning or failure state. The loop between Line \ref{alg:win:Yloop-start} to \ref{alg:win:Yloop-end} aims to enumerate $Y\in 2^{\Y}$ inside, and it can terminate as soon as a winning action $Y$ for the controller is found (at Line \ref{alg:win:loop-stop}). Meanwhile, the loop between Line \ref{alg:win:Xloop-start} to \ref{alg:win:Xloop-end} has to enumerate every $X\in 2^{\X}$ before it can conclude the fixed $Y$ is indeed a winning action for the controller. If the enumeration on $X$ is not successful, another $Y$ has to be chosen (at Line \ref{alg:win:chooseY}) and the above process repeats.
+
+There are two points that need to be addressed clearly in the algorithm. Firstly, if the new transition $\phi\tran{\omega}s$ is not an accepting transition, $\tool$ will be invoked on $s$ recursively to determine whether $s$ is a winning state (at Line \ref{alg:win:recursive}). Secondly, if a loop is detected before $s$ can be determined as the winning state for the controller (at Line \ref{alg:win:loop-detect}), $s$ can never be a winning state. Assume the run of the \tdfa is $r=s,s_1,\ldots, s$. Starting from $s$, the environment can have the option to induce the same run as $r$, in which case the controller can never win.  
+
 
 \iffalse
 \begin{algorithm}
@@ -290,6 +298,9 @@ Given a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$, $s_0$ is a winning st
 	\end{algorithmic}
 \end{algorithm}
 
+
+Let $\Omega = \tool (\phi, \X, \Y)$ and we now define the strategy generator based on $\Omega$. 
+
 \begin{definition}[Strategy Generator]\label{def:transducer}
 	The strategy generator for the \ltlf synthesis problem $(\phi, \X, \Y)$ is a transducer $\mathcal{T}_{\A}=(2^{\X\times\Y}, S, s_0, \rho, \sigma)$ such that
 	\begin{itemize}
@@ -301,6 +312,8 @@ Given a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$, $s_0$ is a winning st
 	\end{itemize}
 \end{definition}
 
+
+\iffalse
 \begin{theorem}
 Given a TDFA $\mathcal{A} =(2^{\X \cup \Y}, S, s_0, \delta, T)$ and a sub-TDFA $\mathcal{A}' =(2^{\X \cup \Y},$ $S',s_0,\delta',T')$ where $S'\subseteq S$, $\delta'\subseteq \delta$ and $T'\subseteq T$, if $\mathcal{A}'$ has a winning strategy, then $\mathcal{A}$ also has a winning strategy. 
 
@@ -310,6 +323,7 @@ Given a TDFA $\mathcal{A} =(2^{\X \cup \Y}, S, s_0, \delta, T)$ and a sub-TDFA $
 \begin{theorem}
 Given a TDFA $\mathcal{A} =(2^{\X \cup \Y}, S, s_0, \delta, T)$, we get the TDFA $\mathcal{A}'$ by removing failure states and transitions related to failure states from $\mathcal{A}$. $\mathcal{A}$ has a winning strategy iff $\mathcal{A}'$ has a winning strategy.
 \end{theorem}
+\fi
 
 
 \iffalse
