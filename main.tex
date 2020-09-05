@@ -5,7 +5,7 @@
 \usepackage{aaai21}
 
 
-
+\usepackage{natbib}
 %\usepackage{aaai18}  %Required
 \usepackage{times}  %Required
 \usepackage{helvet}  %Required
@@ -44,7 +44,7 @@
 \newcommand{\N}{\mathcal{N}} \newcommand{\R}{\mathcal{R}} \newcommand{\A}{\mathcal{A}}
 \newcommand{\U}{\mathcal{U}} \newcommand{\V}{\mathcal{V}} \renewcommand{\P}{\mathcal{P}}
 \newcommand{\W}{\mathcal{W}} \newcommand{\X}{\mathcal{X}} \newcommand{\Y}{\mathcal{Y}}
-%\newcommand{\F}{\mathcal{F}} \newcommand{\G}{\mathcal{G}} 
+\renewcommand{\L}{\mathcal{L}} %\newcommand{\G}{\mathcal{G}} 
 \newcommand{\F}{\Diamond} \newcommand{\G}{\Box} 
 \newcommand{\M}{\mathcal{M}}
 
@@ -77,12 +77,17 @@
 \def\TNFA{$\mathsf{TNFA}$\xspace}
 \def\satOnce{\mathsf{satOnce}\xspace}
 \def\SAT{\textsf{SAT}\xspace}
+\newcommand{\PA}{{\sf PA}\xspace}
 \newcommand{\XNF}{{\sf XNF}\xspace}
 \newcommand{\NNF}{{\sf NNF}\xspace}
 \newcommand{\cl}{{\sf cl}\xspace}
 \newcommand{\allsat}{{\sf AllSat}\xspace}
 \newcommand{\aaltaf}{{\sf aaltaf}\xspace}
 \newcommand{\tool}{{\sf Win}\xspace}
+\newcommand{\syft}{{\sf SYFT}\xspace}
+\newcommand{\lisasyft}{{\sf LISASYFT}\xspace}
+\newcommand{\mona}{{\sf MONA}\xspace}
+\newcommand{\spot}{{\sf Spot}\xspace}
 
 
 
@@ -108,15 +113,15 @@
 
 
 \begin{abstract}
-
+In this paper, we present a new synthesis framework based on the on-the-fly \dfa construction for \ltl over finite traces~(\ltlf). Extant approaches rely heavily on the generation of the \dfa w.r.t. the input \ltlf formula, whose size can be doubly exponential to the size of the formula in the worst case. Under those approaches, the synthesis cannot be conducted unless the whole \dfa is completely constructed, which is not only inefficient but also not scalable in practice. Indeed, the \dfa construction becomes the main bottleneck for \ltlf synthesis from previous researches. To mitigate this drawback, we follow two steps in this paper: Firstly, we present several light-weight pre-processing techniques such that the synthesis result can be determined even without \dfa generation; Secondly, we propose to achieve the synthesis together with the on-the-fly \dfa construction such that the synthesis result can be obtained before the whole \dfa construction is terminated. The on-the-fly \dfa construction is implemented using the \SAT-based techniques for automata generation in the previous literature. We compared our new approach with the traditional ones on an extensive benchmark for \ltlf synthesis. Experimental results showed that our new approach has a significant advantage on the synthesis performance in terms of the scalability. 
 \end{abstract}
 
 
-%\input{introduction.tex}
+\input{introduction.tex}
 
 \input{preliminary.tex}
 
-%\input{overview.tex}
+\input{overview.tex}
 
 \input{theory.tex}
 
@@ -126,10 +131,11 @@
 
 
 
-\bibliographystyle{aaai21}
+%\bibliographystyle{aaai21}
 
+\newpage
 \bibliography{ok,cav}
-
+\input{Appendix}
 
 
 

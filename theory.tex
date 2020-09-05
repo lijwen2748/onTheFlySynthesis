@@ -5,61 +5,61 @@ In this section, we introduce some pre-processing techniques for \ltlf synthesis
 	If the \ltlf formula $\phi$ is unsatisfiable, then $\phi$ is not realizable; If $\phi$ is valid, then $\phi$ is realizable.
 \end{theorem}
 Theorem~\ref{thm:sat-syn} suggests that an unsatisfiable/valid \ltlf formula is not quite useful as a synthesis specification in practice. 
-To that end, an extant \ltlf-satisfiability solver, e.g., \aaltaf~\cite{LRPZV19}, can be used to check the satisfiability/validity of the formula upon the synthesis. We now define the $\satOnce$ predicate for further use. 
+To that end, an extant \ltlf-satisfiability solver, e.g., \aaltaf~\cite{LRPZV19}, can be used to check the satisfiability/validity of the formula before synthesis. We now define the $\satOnce$ predicate for further use. 
 
 \begin{definition}\label{def:satOnce}
-Given an \ltlf formula $\phi$ and $\omega\in 2^{\P}$, we define the predicate $\satOnce (\omega, \phi)$ is true iff 
+Given an \ltlf formula $\phi$ and $\sigma \in 2^{\P}$, we define the predicate $\satOnce (\sigma, \phi)$ is true iff 
 \begin{itemize}
 	\item $\phi$ is $\tt$; or
-	\item $\phi \in \omega$ when $\phi$ is an atom; or 
-	\item $\neg \satOnce (\omega, \psi)$ is true when $\phi = \neg\psi$;
-	\item $\satOnce (\omega, \phi_1)$ and $\satOnce (\omega, \phi_2)$ are true, when $\phi = \phi_1\wedge\phi_2$; or 
-	\item $\satOnce (\omega, \phi_1)$ or $\satOnce (\omega, \phi_2)$ is true, when $\phi = \phi_1\vee\phi_2$; or
-	\item $\satOnce (\omega, \phi_2)$ is true, when $\phi = \phi_1\U\phi_2$ or $\phi = \phi_1\R\phi_2$.
+	\item $\phi$ is an atom and $\phi \in \sigma$; or 
+	\item $\phi = \neg\psi$ and $\neg \satOnce (\sigma, \psi)$ is true; or
+	\item $\phi = \phi_1\wedge\phi_2$ and $\satOnce (\sigma, \phi_1)$ and $\satOnce (\sigma, \phi_2)$ are true; or
+	\item $\phi = \phi_1\vee\phi_2$ and $\satOnce (\sigma, \phi_1)$ or $\satOnce (\sigma, \phi_2)$ is true; or
+	\item $\phi = \phi_1\U\phi_2$ or $\phi = \phi_1\R\phi_2$ and $\satOnce (\sigma, \phi_2)$ is true.
 \end{itemize} 
 \end{definition}
 
 Based on Definition \ref{def:satOnce} and the semantics of \ltlf formulas, the lemma below is straightforward. 
 
 \begin{lemma}\label{lem:satOnce}
-Given an \ltlf formula $\phi$ and $\omega\in 2^{\P}$, $\satOnce (\omega, \phi)$ is true iff $\omega\models\phi$ holds.
+Given an \ltlf formula $\phi$ and $\sigma\in 2^{\P}$, $\satOnce (\sigma, \phi)$ is true iff $\sigma\models\phi$ holds.
 \end{lemma}
-In fact, Definition \ref{def:satOnce} can be considered as the simplified version of \ltlf semantics in which the length of the finite trace is restricted to be one. Also, Definition \ref{def:satOnce} provides a better option for the implementation purpose. 
+In fact, Definition \ref{def:satOnce} can be considered as the simplified version of \ltlf semantics in which the length of the finite trace is restricted to be one. Definition \ref{def:satOnce} is provided as a better option for the implementation purpose. 
 
 \begin{theorem}\label{thm:winning-1}
-Given an \ltlf formula $\phi$ with the alphabet $\X\cup \Y$, if there exists $Y\in 2^{\Y}$ such that $\satOnce (Y, \phi)$ is true, then $\phi$ is realizable. 
+Given an \ltlf formula $\phi$ with alphabet $\X\cup \Y$, if there exists $Y\in 2^{\Y}$ such that $\satOnce (Y, \phi)$ is true, then $\phi$ is realizable. 
 \end{theorem}
 \begin{proof}
 From Lemma \ref{lem:satOnce}, $\satOnce (Y, \phi)$ is true implies that $Y\models\phi$ is true. As a result, for every $X\in 2^{\X}$, it is true that $X\cup Y\models\phi$ is true, providing that $\X\cap \Y=\emptyset$. Therefore, there exists a strategy $g$ with $g(\epsilon) = Y$ such that for every $X\in 2^{\X}$ it holds that $X\cup g(\epsilon)\models\phi$. According to Definition \ref{def:synthesis}, $g$ is a winning strategy for the system and thus $\phi$ is realizable.
 \end{proof}
 
-Consider the formula $a\U b$ with $\X=\{a\}$ and $\Y=\{b\}$ as an example. Let $Y= \{b\}$ and since $\satOnce (Y, a\U b)$ is true, $\phi$ is realizable according to Theorem~\ref{thm:winning-1}. It is easy to induce that Theorem~\ref{thm:winning-1} can be extremely helpful for the synthesis instances like $\psi\U b$ with $\Y=\{b\}$, under which the realizable result can be achieved by Theorem~\ref{thm:winning-1} directly without further automata construction. This advantage may potentially lead to an exponential better performance, which is discussed in the experimental section. Next, we introduce the concept of \emph{formula projection} for the pre-processing of unrealizable formulas. 
+Consider the formula $a\U b$ with $\X=\{a\}$ and $\Y=\{b\}$ as an example. Let $Y= \{b\}$ and since $\satOnce (Y, a\U b)$ is true, $\phi$ is realizable according to Theorem~\ref{thm:winning-1}. It is easy to induce that Theorem~\ref{thm:winning-1} can be extremely helpful for the synthesis instances like $\psi\U b$ with $\Y=\{b\}$, under which the realizable result can be achieved by Theorem~\ref{thm:winning-1} directly without further automata construction. This advantage may potentially lead to an exponential better performance, which will be discussed in the experimental section later. Next, we introduce the concept of \emph{formula projection} for the pre-processing of unrealizable formulas. 
 
 \begin{definition}[Formula Projection]\label{def:fp}
-Given an \ltlf formula $\phi$ in \NNF with the atomic set $P$, we define its projection under $P$, denoted as $\phi |_P$, is a Boolean formula as follows:
+Given an \ltlf formula $\phi$ in \NNF with the atomic set $\P$, we define its projection under $\P$, denoted as $\phi |_\P$, is a Boolean formula as follows:
 \begin{itemize}
-	\item $\phi|_P = \phi$ if $\phi$ is $\tt$, $\ff$ or a literal;
-	\item $\phi|_P = \tt$ iff $\phi = X\psi$ or $\phi = \N\psi$;
-	\item $\phi|_P = \phi_1|_P \wedge \phi_2|_P$ if $\phi = \phi_1\wedge\phi_2$;
-	\item $\phi|_P = \phi_1|_P \vee \phi_2|_P$ if $\phi = \phi_1\vee\phi_2$;
-	\item $\phi|_P = \phi_1|_P \vee \phi_2|_P$ if $\phi = \phi_1\U\phi_2$;
-	\item $\phi|_P = \phi_2|_P$ if $\phi = \phi_1\R\phi_2$.
+	\item $\phi|_\P = \phi$ if $\phi$ is $\tt$, $\ff$ or a literal;
+	\item $\phi|_\P = \tt$ iff $\phi = X\psi$ or $\phi = \N\psi$;
+	\item $\phi|_\P = \phi_1|_\P \wedge \phi_2|_\P$ if $\phi = \phi_1\wedge\phi_2$;
+	\item $\phi|_\P = \phi_1|_\P \vee \phi_2|_\P$ if $\phi = \phi_1\vee\phi_2$;
+	\item $\phi|_\P = \phi_1|_\P \vee \phi_2|_\P$ if $\phi = \phi_1\U\phi_2$;
+	\item $\phi|_\P = \phi_2|_\P$ if $\phi = \phi_1\R\phi_2$.
 \end{itemize}
 \end{definition}
 
 \begin{lemma}\label{lem:fp}
 Given an \ltlf formula $\phi$ and a finite trace $\eta$, $\eta\models\phi$ implies that $\eta[0]\models\phi|_P$.
 \end{lemma}
-The proof can be done by induction over the types of $\phi$, which are omitted here. Lemma \ref{lem:fp} indicates that $\phi|_P$ is sufficient to capture all the first-position elements of $\phi$'s accepting traces. Inspired from that, we have the following lemma that can facilitate to identify a formula which is not realizable. 
+The proof can be done by induction over the types of $\phi$, which are omitted here. Lemma \ref{lem:fp} indicates that $\phi|_P$ is sufficient to capture all the first-position elements of $\phi$'s accepting traces. Inspired from that, we have the following lemma that can facilitate to identify a formula being unrealizable. 
 
 \begin{theorem}\label{thm:failure-1}
-Given an \ltlf formula $\phi$ with the atomic set $\X\cup \Y$, if $Y\models \phi|_{\X\cup\Y}$ does not hold for any $Y\in 2^{\Y}$, then $\phi$ is not realizable. 
+Given an \ltlf formula $\phi$ with the atomic set $\X\cup \Y$, if there does not exists $Y\in 2^{\Y}$ such that $Y\models \phi|_{\X\cup\Y}$, then $\phi$ is unrealizable. 
 \end{theorem}
 \begin{proof}
-Assume $\phi$ is realizable. According to Definition \ref{def:synthesis}, there exists a winning strategy $g$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in {2^{\X}}^{\omega}$, we can find $k\geq 0$ such that $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)), \ldots, (X_k\cup g(X_{k-1}))$ satisfies $\phi$. Let $Y = g(\epsilon)$, and based on Lemma \ref{lem:fp}, we have that $Y\cup X_0\models \phi|_{\X\cup\Y}$ for every $X_0\in 2^{\X}$. As the consequence, it is required that $Y\models \phi|_{\X\cup\Y}$ is true. However, we already know that $Y\models \phi|_{\X\cup\Y}$ does not hold for any $Y\in 2^{\Y}$, which causes the contradiction. Therefore, we prove that $\phi$ is not realizable.
+Assume $\phi$ is realizable. According to Definition \ref{def:synthesis}, there exists a winning strategy $g$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in (2^{\X})^{\omega}$, there exists $k\geq 0$ such that $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)), \ldots, (X_k\cup g(X_{k-1}))$ satisfies $\phi$. Let $Y = g(\epsilon)$, and based on Lemma \ref{lem:fp}, we have that $Y\cup X_0\models \phi|_{\X\cup\Y}$ for every $X_0\in 2^{\X}$. As the consequence, it is required that $Y\models \phi|_{\X\cup\Y}$ is true. However, we already know that $Y\models \phi|_{\X\cup\Y}$ does not hold for any $Y\in 2^{\Y}$, which causes the contradiction. Therefore, we prove that $\phi$ is unrealizable.
 \end{proof}
 
-Consider the formula $\phi= \G (a\wedge b)\wedge \G (c\wedge d)$ with $\X=\{a,c\}$ and $\Y=\{b,d\}$ as an example. From Definition~\ref{def:fp}, we have that $\phi|_P=(a\wedge b\wedge c\wedge d)$. Obviously, $Y\models \phi|_P$ does not hold for any $Y\in 2^{\Y}$. We can conclude that $\phi$ is not realizable based on Theorem~\ref{thm:failure-1}. In general, the performance of the traditional synthesis approach for $\phi= \G (a\wedge b)\wedge \G (c\wedge d) \wedge\psi$ with $\X=\{a,c\}\cup P_{\psi}$ and $\Y=\{b,d\}$ (assume $P_{\psi}$ is the atomic set of $\psi$ and $P_{\psi} - \{a,b,c,d\} = P_{\psi}$) can decrease exponentially w.r.t. the size of $\psi$, while that of the synthesis based on Theorem \ref{thm:failure-1} can escape from the drawback. 
+Consider the formula $\phi= \G (a\wedge b)\wedge \G (c\wedge d)$ with $\X=\{a,c\}$ and $\Y=\{b,d\}$ as an example. From Definition~\ref{def:fp}, we have that $\phi|_P=(a\wedge b\wedge c\wedge d)$. Obviously, $Y\models \phi|_P$ does not hold for any $Y\in 2^{\Y}$. We can conclude that $\phi$ is not realizable based on Theorem~\ref{thm:failure-1}. In general, the performance of the traditional synthesis approach for $\phi= \G (a\wedge b)\wedge \G (c\wedge d) \wedge\psi$ with $\X=\{a,c\}\cup P_{\psi}$ and $\Y=\{b,d\}$ (assume $P_{\psi}$ is the atomic set of $\psi$ and $P_{\psi} \cap \{a,b,c,d\} = \emptyset$) can decrease exponentially w.r.t. the size of $\psi$, while that of the synthesis based on Theorem \ref{thm:failure-1} can escape from the drawback. 
 
 \begin{theorem}\label{thm:failure-2}
 	Given an \ltlf formula $\phi$ with the atomic set $\X\cup \Y$, if there exists $X\in 2^{\X}$ such that $X\models \phi|_{\X\cup\Y}$ does not hold, then $\phi$ is not realizable. 
@@ -72,94 +72,104 @@ Theorem \ref{thm:failure-2} can be treated as a stronger version of Theorem \ref
 
 
 \section{On-the-fly Synthesis via \tdfa Games}
-In this section, we first introduce the theoretic framework of the \ltlf synthesis via the \tdfa (Transition-based \dfa) game. Then we present an algorithm that generate the \tdfa on the fly to implement the synthesis. The definition of a \tdfa is shown as below. 
+In this section, we first introduce the theoretic foundation of the on-the-fly \ltlf synthesis approach, which is based on the \tdfa (Transition-based \dfa) game. We present an algorithm that generates the \tdfa on the fly to implement the synthesis. The \tdfa is a variant of \dfa that is better for performing on-the-fly construction. The definition of \tdfa is shown as below. 
  
 \begin{definition}[Transition-based \dfa]\label{def:tdfa}
-The transition-based \dfa (\tdfa) $\mathcal{A}$ is a tuple $\A = (\Sigma,S,s_0,\delta,T)$ such that 
+A transition-based \dfa (\tdfa) $\mathcal{A}$ is a tuple $\A = (\Sigma,S,s_0,\delta,T)$, where 
 \begin{itemize}
-    \item $\Sigma$ is the set of alphabet;
-    \item $S$ is the set of states;
+    \item $\Sigma$ is a set of alphabet;
+    \item $S$ is a set of states;
     \item $s_0\in S$ is the initial state;
-    \item $\delta:S\times\Sigma\hookrightarrow S$ is the partial transition function, i.e. $\delta (s, \omega)\in S$ or $\delta (s, \omega)\in S$ is undefined for $s\in S$ and $\omega\in {\Sigma}$;
+    \item $\delta:S\times\Sigma\hookrightarrow S$ is the transition function, which is a partial function, i.e. $\delta (s, \omega)\in S$ or $\delta (s, \omega)$ is undefined for $s\in S$ and $\omega\in {\Sigma}$;
     \item $T \subseteq \delta$ is the set of accepting transitions.
 \end{itemize}
 \end{definition}
 
-A run $r$ of $\A$ on a finite trace $\eta=\omega_0, \omega_1,\cdots, \omega_n \in \Sigma^+$ is a finite state sequence $s_0,s_1,\ldots,s_{n+1}$ such that $s_0$ is the initial state and $\delta (s_i, \omega_i) = s_{i+1}$ is true for $0\leq i \leq n$.
-The trace $\eta$ is accepted by $\A$ iff the corresponding run $r$ ends with an accepting transition, i.e., $\delta (s_n, \omega_n) = s_{n+1}$ is in $T$. For the sake of simplicity, we denote $s_1\tran{\omega}s_2$ for the transition $\delta (s_1, \omega) = s_2$.
+The run $r$ of $\A$ on a finite trace $\eta=\omega_0, \omega_1,\cdots, \omega_n \in \Sigma^+$ is a finite state sequence $s_0,s_1,\ldots,s_{n+1}$ such that $s_0$ is the initial state and $\delta (s_i, \omega_i) = s_{i+1}$ is true for $0\leq i \leq n$.
+The trace $\eta$ is accepted by $\A$ iff the corresponding run $r$ ends with an accepting transition, i.e., $\delta (s_n, \omega_n) = s_{n+1}$ is in $T$. For the sake of simplicity, we denote transition $\delta (s_1, \omega) = s_2$ as $s_1\tran{\omega}s_2$.
 
 \begin{lemma}\label{lem:tdfa}
 The \tdfa is as expressive as the \dfa.
 \end{lemma}
 \begin{proof}
-	For the $\Leftarrow$ direction, a \dfa is trivially converted to its equivalent \tdfa by marking all transitions, whose target node is an accepting state of the \dfa, as the accepting transitions. For the $\Rightarrow$ direction, we first convert a \tdfa to its equivalent \nfa as follows: (1) Create a new state $f$ as the only accepting state of the \nfa; (2) Create a transition $s\tran{\omega}f$ if the transition $s\tran{\omega}s'$ is an accepting transition of the \tdfa. From the constructed \nfa, one can trivially generate the equivalent \dfa by the subset construction. 
+	For the $\Leftarrow$ direction, a \dfa can be trivially converted to its equivalent \tdfa by marking all transitions leading to accepting states as accepting transitions. For the $\Rightarrow$ direction, we first convert a \tdfa to its equivalent \nfa as follows: (1) Create a new state $f$ as the only accepting state of the \nfa; (2) Create a transition $s\tran{\omega}f$ if the transition $s\tran{\omega}s'$ is an accepting transition of the \tdfa. From the constructed \nfa, one can trivially generate the equivalent \dfa by subset construction. 
 \end{proof}
 
 
 According to \cite{GV13}, there exists a \dfa for each \ltlf formula such that they accept the same language. Therefore, it is straightforward to see that there is also a \tdfa for each \ltlf formula such that they can accept the same language. 
 
-In this paper, we present a dedicated \ltlf-to-\tdfa construction based on \SAT techniques below for on-the-fly synthesis. The \SAT-based automata construction was first introduced in \cite{LRPZV19}, and we follow the methodology presented in the literature. Given an \ltlf formula $\phi$, \cite{LRPZV19} provides a way to generate a \emph{propositional assignment} $A$ of $\phi$ such that $A$ includes the information of one transition for the \NFA generation. We refer readers to the literature for more details and here we simply use the notation $\SAT(\phi)$ ($=A$) to represent such process. Assume $A=\SAT(\phi)$ and let $L(A)$ denote the Boolean labels and $X(A)$ denote the successor state of the transition, the \tdfa construction can be achieved as follows.  
+In this paper, we present a dedicated \SAT-based \ltlf-to-\tdfa construction technique for on-the-fly synthesis. The \SAT-based \ltlf-to-automata construction technique was first introduced in \cite{LRPZV19}, and we follow the methodology presented in the literature. Given an \ltlf formula $\phi$, this technique is able to generate a \emph{propositional assignment} $A$ of $\phi$ such that $A$ includes the information of a transition in the corresponding \NFA \cite{LRPZV19}. For more details,
+%\cite{LRPZV19} provides a way to generate a \emph{propositional assignment} $A$ of $\phi$ such that $A$ includes the information of one transition for the \NFA generation. 
+we refer to paper \cite{LRPZV19} and here we just use $\SAT(\phi)$ to denote this process. Assume $A = \SAT(\phi)$ is the propositional assignment returned from the \SAT-based technique, we use $L(A)$ to denote the transition label, which is represented as a Boolean formula, and $X(A)$ to denote the successor state of $\phi$. The \tdfa construction can be achieved as follows.  
 
 \begin{definition}[\ltlf-to-\tdfa]\label{def:ltlf2dfa}
-Given an \ltlf formula $\phi$, the corresponding \TDFA ${\A_{\phi}}$ is defined as a tuple $(\Sigma, S, \delta, s_0, T)$ such that
+Given an \ltlf formula $\phi$, the corresponding \TDFA ${\A_{\phi}}$ is a tuple $(\Sigma, S, \delta, s_0, T)$ such that
 \begin{itemize}
-	\item $\Sigma = 2^{L}$ is the set of alphabet and $L$ is the literal set of $\phi$;
+	\item $\Sigma = 2^{\L}$ is the set of alphabet and $\L$ is the literal set of $\phi$;
 	\item $S\subseteq 2^{2^{\cl(\phi)}}$ is the set of states;
-	\item $\delta:  S \times \Sigma \hookrightarrow S$ is the partial transition function, where $s_2 = \delta(s_1, \omega) (\omega \in \Sigma)$ holds iff $s_2=\{X(A) | A\in\{\SAT(s_1)\}\textit{ and }\omega \supseteq L(A)\}$;
+	\item $\delta:  S \times \Sigma \hookrightarrow S$ is the partial transition function, where $s_2 = \delta(s_1, \omega) \mbox{ holds}$ iff $s_2=\{X(A) | A\in\{\SAT(s_1)\}\textit{ and }\omega \subseteq L(A)\}$ for $\omega \in \Sigma$;
 	\item $s_0 = \{\{\phi \}\}$ is the initial state;
 	\item $T\subseteq \delta$ is the set of accepting transitions. A transition $s_1\tran{\omega}s_2$ is in $T$ iff $\omega\models s_1$ holds. 
 \end{itemize}
 
 \end{definition}
 
-The following theorem guarantees the correctness of the \tdfa construction shown in Definition \ref{def:ltlf2dfa}. 
+From Definition \ref{def:ltlf2dfa}, a state $s$ of the \tdfa is a set of subformulas of the input formula $\phi$. \textbf{For the description convenience, we mix the usage of the state and the formula in the following.} That is to say, $s$ represents the formula $\bigvee_{q\in s}\bigwedge_{\psi\in q} \psi$, and vice versa. The following theorem guarantees the correctness of the \tdfa construction shown in Definition \ref{def:ltlf2dfa}. 
 
-\begin{theorem}
+\begin{theorem}\label{thm:ltlf2tdfa}
 Given an \ltlf formula $\phi$ and the \tdfa ${\A_{\phi}}$ constructed by Definition \ref{def:ltlf2dfa}, a finite trace $\eta\models\phi$ holds iff $\eta$ is accepted by ${\A_{\phi}}$. 
 \end{theorem}
-The proof of this theorem requires more details from \cite{LRPZV19}, which are shown in the Appendix (\textcolor{red}{to be done ..}) section.
-As soon as the \tdfa is constructed from the \ltlf formula, the synthesis problem is reducible to the \tdfa game defined as below.
+The proof of this theorem requires more details from \cite{LRPZV19}, which are shown in the Appendix section. As long as we obtain the \tdfa of the given \ltlf formula, the synthesis problem can be reduced to \tdfa game defined as below.
 
 \begin{definition}[\tdfa Game]\label{tdfa-game}
-	A \tdfa game is specified by a \tdfa $\A = (2^{\X\times\Y}, S, s_0, \delta, T)$, where 
+	A \tdfa game is a two-player game over a \tdfa $\A = (2^{\X \times \Y}, S, s_0, \delta, T)$ such that 
 	\begin{itemize}
-		\item $2^{\X\times\Y}$ is the alphabet of the game, where $\X$ and $\Y$ are two sets of variables whose values are controlled by the environment and controller respectively;
+		\item $2^{\X \times \Y}$ is the alphabet of the game, where $\X$ and $\Y$ are two disjoint sets of variables that are controlled by the environment and system respectively;
 		\item $S$ is the set of states;
 		\item $s_0$ is the initial state;
-		\item $\delta:S\times 2^{\X\times\Y}\hookrightarrow S$ is the partial transition function, i.e. $\delta (s, X\cup Y)$ is in $S$ or  undefined for $s\in S$, $X\in 2^{\X}$ and $Y\in 2^{\Y}$;
-    \item $T \subseteq \delta$ is the set of final transitions of the game, where the game can be considered terminated.
+		\item $\delta:S\times 2^{\X \times \Y}\hookrightarrow S$ is the partial transition function, i.e. $\delta (s, X\cup Y)$ is in $S$ or undefined for $s\in S$, $X\in 2^{\X}$ and $Y\in 2^{\Y}$;
+    \item $T \subseteq \delta$ is the set of accepting transitions of the game, visiting which the system can terminate the game and declare as winning.
 	\end{itemize}
 \end{definition}
-To coordinate with the \ltlf synthesis, we focus on the \textbf{Environment-first} \tdfa game as well. We say the game is \emph{winning} for the controller iff there is a winning strategy $f: (2^{\X})^*\rightarrow 2^{\Y}$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in (2^{\X})^{\omega}$, there is $k\geq 0$ and the run of the \tdfa $\A$ on the trace $(X_0\cup f(\epsilon)), (X_1\cup f(X_0)),\ldots, (X_k\cup f(X_{k-1}))$ can lead to a final transition of $\A$.
+To coordinate with the \ltlf synthesis, we focus on the \textbf{System-first} \tdfa game as well. We say the game is \emph{winning} for the system iff there is a winning strategy $f: (2^{\X})^*\rightarrow 2^{\Y}$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in (2^{\X})^{\omega}$, there is $k\geq 0$, such that the corresponding run $r = (X_0\cup f(\epsilon)), (X_1\cup f(X_0)),\ldots, (X_k\cup f(X_{k-1}))$ is accepted by $\A$.
+In the following, we define the \emph{winning} and \emph{failure} states of a \tdfa game.
 
- In the following, we define the \emph{winning} and \emph{failure} states of a \tdfa in terms of the \tdfa game.
-
-\begin{definition}[Winning/failure State]\label{def:winning_failure_state}
+\begin{definition}[System Winning/failure State]\label{def:winning_failure_state}
 \label{def:win_st}
-Given a \tdfa $\A =(2^{\X\times \Y},S,s_0,\delta,T)$, we say $s\in S$ is a winning state iff there is $Y \in 2^\Y$ such that for every $X \in 2^\X$, either $\delta(s,X\cup Y)=s'$ is an accepting transition or $s'$ is a winning state. Moreover, we say $s$ is a failure state iff it is not a winning state.
+Consider \tdfa game over $\A =(2^{\X \cup \Y},S,s_0,\delta,T)$, $s\in S$ is a system winning state iff there is $Y \in 2^\Y$ such that for every $X \in 2^\X$, either $\delta(s,X\cup Y)=s'$ is an accepting transition or $s'$ is a winning state. Moreover, we say $s$ is a system failure state iff it is not a system winning state.
 \end{definition}
 
-The following lemma is deducible from Definition \ref{def:winning_failure_state} instantly. 
+The following lemma is deducible from Definition \ref{def:winning_failure_state} instantly and can be used as an easy check in the algorithm. 
 
 \begin{lemma}
-Given a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$ and $s\in S$, 
+For a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$ and state $s\in S$, 
 \begin{enumerate}
-	\item $s$ is a winning state if there is $Y \in 2^\Y$ such that for every $X \in 2^\X$, $\delta(s,X\cup Y)=s'$ is an accepting transition;
+	\item $s$ is a system winning state if there is $Y \in 2^\Y$ such that for every $X \in 2^\X$, $\delta(s,X\cup Y)=s'$ is an accepting transition;
 	\item $s$ is a failure state if for every $Y \in 2^\Y$, there is $X \in 2^\X$ such that $\delta(s,X \cup Y)$ is undefined.
 \end{enumerate} 
 \end{lemma}
 
-Informally speaking, a winning state in the \tdfa is a state whose out-going transitions are defined, and the transitions are all accepting or lead to some winning states. To the opposite, a failure state is a state who has some out-going transitions undefined, or has a part of the transitions leading to the failure states. Now, we present the main theorem for our synthesis approach. 
+Informally speaking, a system winning state is a state if all of its out-going transitions are defined, and are either accepting or leading to some winning states. To the opposite, a system failure state is a state who has some out-going transitions undefined, or has a part of the transitions leading to the failure states. 
+Now, we present the main theorem for our synthesis approach. 
 %Based on Definitions \ref{def:winning_failure_state}, the follow theorem is also straightforward. 
 
 \begin{theorem}\label{thm:winning-and-failure}
-Given a \tdfa game $\A =(2^{\X\times \Y},S,s_0,\delta,T)$, $s_0$ is a winning state iff the controller is winning for the game.
+Given a \tdfa game $\A =(2^{\X \cup \Y},S,s_0,\delta,T)$, $s_0$ is a system winning state iff the system is winning for the game.
 \end{theorem}
 \begin{proof}
-\textcolor{red}{to be done.}
+\textcolor{red}{to be done..}
 \end{proof}
 
-An important question raises up that how do we know the initial state is a \emph{winning state}? Traditional synthesis approaches \cite{GV15} first construct the whole \dfa for the input formula, and then present a fixpoint calculation back from the accepting states, for the reason that those accepting states are obviously winning states. The calculation recursively marks the states that have a winning strategy to those winning states as winning, and terminates as soon as no more states can be marked. The controller is winning for the game if the initial state $s_0$ is in the computed winning set. The main drawback of such methodology is the winning strategy can only be computed after the \dfa is generated.  
+\begin{theorem}\label{thm:system-and-game}
+For an \ltlf formula $\phi$ with $\X$ and $\Y$, let $\A =(2^{\X \cup \Y},S,s_0,\delta,T)$ be the corresponding \tdfa game description. $s_0$ is a system winning state iff $\phi$ is realizable.
+\end{theorem}
+\begin{proof}
+$(\Rightarrow)$ Since $s_0$ is a system winning state, there is a system winning strategy $f: (2^\X)^* \rightarrow 2^\Y$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in (2^{\X})^{\omega}$, there exists $k \geq 0$ such that the run of $\A$ on the finite trace $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)), \ldots, (X_k\cup g(X_{k-1}))$  is an accepting run. Therefore, $\rho \models \phi$ holds and $f$ is the system winning strategy.
+
+$(\Leftarrow)$ If $\phi$ is realizable, then there is a system winning strategy $f: (2^\X)^* \rightarrow 2^\Y$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in (2^{\X})^{\omega}$, there exists $k \geq 0$ such that the finite trace $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)), \ldots, (X_k\cup g(X_{k-1}))$ satisfies $\phi$. The run of $\A$ on $\rho$ is thus an accepting run. Therefore, $s_0$ is a system winning state with winning strategy $f$.
+\end{proof}
+
+An important question raises up is that how to check whether the initial state is a \emph{winning state}? The classical synthesis approach \cite{GV15} first constructs the whole \dfa w.r.t. the input \ltlf formula, and then performs a backward least fixpoint computation. The fixpoint is initialized as the set of accepting states, visiting which the system obviously wins the game. The fixpoint computation then iteratively collects new states from which the system is able to reach an already-defined winning state, no matter how the environment behaves. The computation terminates as soon as we reach the fixpoint, i.e., no more winning states can be collected. The system wins the game if the initial state $s_0$ is in the winning set. The main drawback of this approach is that the winning states can only be collected after the complete \dfa is obtained.  
 
 
 \begin{algorithm}
@@ -208,13 +218,13 @@ An important question raises up that how do we know the initial state is a \emph
 	\end{algorithmic}
 \end{algorithm}
 
-In this paper, we present a new technique that compute the winning strategy on the fly. The algorithm \tool, which is shown in Algorithm \ref{alg:win}, describes the main procedures of the new technique. While comments are blue-colored in the body to help understand the algorithm, we summarize the crucial parts of the technique as follow.
+In this paper, we present a new technique that is able to collect the system winning states and synthesizes the winning strategy on the fly. The algorithm \tool, which is shown in Algorithm \ref{alg:win}, describes the main procedures of this technique. Comments are blue-colored for better understanding. We summarize the crucial parts of the technique as follows.
 
-The algorithm $\tool$ takes a tuple $(\phi, \X, \Y)$ as the input and outputs a set $\Omega$ which contains the winning strategy information if exists, or an empty set. Each element of $\Omega$ has the form of $\langle s, Y, \{\langle X, s'\rangle\}\rangle$, where $s,s'\in S$, $X\in 2^{\X}$ and $Y\in 2^{\Y}$. Such element indicates that from state $s$, the winning action for the controller is $Y$ for an arbitrary $X$. Moreover, Given an $X\in 2^{\X}$, it also tells the next state for the controller to win is $s'$, i.e., $s\tran{X\cup Y}s'$ is a transition of the \tdfa and $s'$ is a winning state as well.
+The algorithm $\tool$ takes a tuple $(\phi, \X, \Y)$ as the input and returns a set $\Omega$ which represents the winning strategy  if $(\phi, \X, \Y)$ is realizable, or an empty set if unrealizable. Each element of $\Omega$ is in the form of $\langle s, Y, \{\langle X, s'\rangle\}\rangle$, where $s,s'\in S$, $X\in 2^{\X}$ and $Y\in 2^{\Y}$. Each element indicates that from state $s$, the system can take $Y$ as a move, such that no matter how the environment chooses $X \in 2^\X$, the next state $s'$ is also a system winning state, i.e., $s\tran{X\cup Y}s'$ is a transition of the \tdfa and $s'$ is a winning state as well.
 
-\tool starts with the preprocessing techniques from Line \ref{alg:win:preprocess-start} to \ref{alg:win:preprocess-end}. The \emph{preprocess} function implements Theorem \ref{thm:sat-syn}-\ref{thm:failure-2}, and $\tool$ returns immediately if the function succeeds to determine $\phi$ is a winning or failure state. The loop between Line \ref{alg:win:Yloop-start} to \ref{alg:win:Yloop-end} aims to enumerate $Y\in 2^{\Y}$ inside, and it can terminate as soon as a winning action $Y$ for the controller is found (at Line \ref{alg:win:loop-stop}). Meanwhile, the loop between Line \ref{alg:win:Xloop-start} to \ref{alg:win:Xloop-end} has to enumerate every $X\in 2^{\X}$ before it can conclude the fixed $Y$ is indeed a winning action for the controller. If the enumeration on $X$ is not successful, another $Y$ has to be chosen (at Line \ref{alg:win:chooseY}) and the above process repeats.
+\tool starts with the preprocessing techniques from Line \ref{alg:win:preprocess-start} to \ref{alg:win:preprocess-end}. The \emph{preprocess} function implements Theorem \ref{thm:sat-syn}-\ref{thm:failure-2}, and $\tool$ returns immediately if the function succeeds to determine $\phi$ is a winning or failure state. The loop from Line \ref{alg:win:Yloop-start} to \ref{alg:win:Yloop-end} aims to enumerate $Y\in 2^{\Y}$ inside, and it can terminate as long as a winning action $Y$ for the system is found (at Line \ref{alg:win:loop-stop}). Meanwhile, the loop from Line \ref{alg:win:Xloop-start} to \ref{alg:win:Xloop-end} has to enumerate every $X\in 2^{\X}$ before it can conclude the fixed $Y$ is indeed a winning action for the system. If the enumeration on $X$ is not successful, another $Y$ has to be chosen (at Line \ref{alg:win:chooseY}) and the above process repeats.
 
-There are two points that need to be addressed clearly in the algorithm. Firstly, if the new transition $\phi\tran{\omega}s$ is not an accepting transition, $\tool$ will be invoked on $s$ recursively to determine whether $s$ is a winning state (at Line \ref{alg:win:recursive}). Secondly, if a loop is detected before $s$ can be determined as the winning state for the controller (at Line \ref{alg:win:loop-detect}), $s$ can never be a winning state. Assume the run of the \tdfa is $r=s,s_1,\ldots, s$. Starting from $s$, the environment can have the option to induce the same run as $r$, in which case the controller can never win.  
+There are two points that need to be addressed clearly in the algorithm. Firstly, if the new transition $\phi\tran{\omega}s$ is not an accepting transition, $\tool$ will be invoked on $s$ recursively to determine whether $s$ is a winning state (at Line \ref{alg:win:recursive}). Secondly, if a loop is detected before $s$ can be determined as the winning state for the system (at Line \ref{alg:win:loop-detect}), the currently chosen $Y$ cannot be a move in a winning strategy.  Assume the run of the \tdfa is $r=s,s_1,\ldots, s$. Starting from $s$, the environment can have the option to induce the same run as $r$, in which case the system can never win.  
 
 
 \iffalse
@@ -263,7 +273,7 @@ There are two points that need to be addressed clearly in the algorithm. Firstly
 
 
 \begin{algorithm}
-\caption{Implementation of function \emph{getTransition}}
+\caption{Implementation of function \emph{getTransition}}\label{alg:getTransition}
 	\begin{algorithmic}[1]
 	\REQUIRE{An \ltlf formula $\phi$, and a set of literals $assumption$;}
 	\ENSURE{$\langle label,next\rangle$ such that $\phi\tran{label}next$ is a transition of the \tdfa, otherwise return $\emptyset$;}
@@ -298,8 +308,9 @@ There are two points that need to be addressed clearly in the algorithm. Firstly
 	\end{algorithmic}
 \end{algorithm}
 
+\textcolor{red}{Missing the introduction to Algortithm \ref{alg:getTransition}}.
 
-Let $\Omega = \tool (\phi, \X, \Y)$ and we now define the strategy generator based on $\Omega$. 
+Let $\Omega = \tool (\phi, \X, \Y)$ and we now define the strategy generator based on $\Omega$. Notably, our strategy generator only returns one winning strategy due to the on-the-fly construction, while the approach in \cite{GV15} is able to return all winning strategy existed. 
 
 \begin{definition}[Strategy Generator]\label{def:transducer}
 	The strategy generator for the \ltlf synthesis problem $(\phi, \X, \Y)$ is a transducer $\mathcal{T}_{\A}=(2^{\X\times\Y}, S, s_0, \rho, \sigma)$ such that

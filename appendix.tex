@@ -1,0 +1,60 @@
+\section{Appendix}
+\subsection{Proof of Theorem \ref{thm:ltlf2tdfa}}
+
+We first introduce the following lemma to prove Theorem \ref{thm:ltlf2tdfa}.
+
+\begin{lemma}\label{lem:propSat}
+Given an \ltlf formula $\phi$ in the \XNF and a finite trace $\eta\in\Sigma^+$ with $|\eta|>1$, $\eta\models\phi$ holds iff there is a satisfying assignment $A$ of $\phi$ such that $\eta[0]\models L(A)$ and $\eta_1\models X(A)$.
+\end{lemma}
+\begin{proof}
+$(\Rightarrow)$ The proof can be achieved by induction over the types of $\phi$. Since $\phi$ is in \XNF, $\phi$ cannot be an Until or Release formula.
+\begin{itemize}
+	\item if $\phi$ is a literal,  we could have a satisfying assignment $A=\{\phi\}$ for $\phi$. In this situation, $L(A)=\{\phi\}$ and $X(A)=\{\tt\}$. Therefore, it is true that $\eta[0]\models L(A)$ and $\eta_1\models X(A)$;
+	\item if $\phi=\X\psi$, we could have a satisfying assignment $A=\{\X\psi\}$ for $\phi$. In this situation, $L(A)=\{\tt\}$ and $X(A)=\{\psi\}$. Considering we have $\eta\models\phi$ i.e., $\eta\models\X\psi$, it is true that $\eta[0]\models L(A)$ and $\eta_1\models X(A)$;
+	\item if $\phi = \phi_1\wedge\phi_2$, $\eta\models\phi$ 
+implies $\eta\models\phi_1$ and $\eta\models\phi_2$. By assumption hypothesis, there is $A_i$ of $\phi_i$ ($i=1,2$) such that 
+$\eta[0]\models L(A_i)$ and $\eta_1\models X(A_i)$. Let $A = A_1\cup A_2$, and a consistent $A$, in which either $\psi$ or $\neg \psi$ cannot be together, 
+must exists ($A$ may not be unique because $A_1$ and $A_2$ may not be unique). 
+Otherwise, there is $\psi\in A_1$ and $\neg\psi\in A_2$ 
+such that $\eta$ cannot model $\bigwedge A_1$ and $\bigwedge A_2$ at the same time, which is a contradiction. So $A$ is a satisfying  assignment of $\phi$, which leads to $\eta[0]\models L(A)$ and $\eta_1\models X(A)$. 
+\item The proof for $\phi=\phi_1\vee\phi_2$ is analogous to the proof for $\phi = \phi_1\wedge\phi_2$.
+\end{itemize} 
+
+$(\Leftarrow)$ Let $A$ be a satisfying assignment of $\phi$, so $A\models\phi$ implies $(\bigwedge A)\Rightarrow \phi$. 
+Also, $\eta[0]\models L(A)$ and $\eta_1\models X(A)$ implies $\eta\models \bigwedge A$. Therefore, it is true that $\eta\models \phi$.
+\end{proof}
+
+Lemma \ref{lem:propSat} does not cover the case when $|\eta|=1$, which yields the following corollary. 
+
+\begin{corollary}\label{coro:propSat}
+Given an \ltlf formula $\phi$ in the \XNF and a finite trace $\eta\in\Sigma^+$ with $|\eta|=1$, $\eta\models\phi$ holds implies there is a satisfying assignment $A$ of $\phi$ such that $\eta[0]\models L(A)$.
+\end{corollary}
+\begin{proof}
+The proof is similar to that of Lemma \ref{lem:propSat} for the ($\Rightarrow$) direction, the details of which are omitted here.
+\end{proof}
+
+Now we start to prove Theorem \ref{thm:ltlf2tdfa}
+\iffalse
+\begin{theorem}
+Given an \ltlf formula $\phi$ and the \TDFA ${\A_{\phi}}$ constructed by Definition \ref{def:ltlf2dfa}, a finite trace $\eta\models\phi$ holds iff $\eta$ is accepted by ${\A_{\phi}}$. 
+\end{theorem}
+\fi
+\begin{proof}
+Assume $\eta = \omega_0\omega_1\ldots\omega_n$ ($n\geq 0$). 
+
+($\Leftarrow$) 
+According to Definition \ref{def:ltlf2dfa},  $\eta$ accepted by ${\A_{\phi}}$ implies that there is a run $r=s_0s_1\ldots s_n s_{n+1}$ of ${\A_{\phi}}$ on $\eta$ such that $s_{n}\tran{\omega_{n}}s_{n+1} \in \delta$ and $\omega_n\models s_n$. To prove $\eta$ is accepted by ${\A_{\phi}}$ implies $\eta\models\phi$ holds, we only need to prove $\eta$ is accepted by ${\A_{\phi}}$ implies $\eta_{n-i}\models s_{n-i}$ for\ i=0...n. Then we could have $\eta (=\eta_0)\models \phi (=s_0)$ when $i=n$.
+
+We prove by induction over the values of $i$.
+\begin{itemize}
+	\item By Definition \ref{def:ltlf2dfa}, we have that $\omega_n\models s_n$, which means basically when $i = 0$, it holds that $\eta_{n-0}\models s_{n-0}$;
+	\item Inductively, assume $\eta_{n-i}\models s_{n-i}$ holds($0<i\leq n$). Because $s_{n-i-1}\tran{\omega_{n-i-1}}s_{n-i}$ is a transition in the \TDFA and $\eta_{n-i}\models s_{n-i}$ holds, the set $A_{n-i-1} = \omega_{n-i-1}\cup \{\X\theta | \theta\in s\}$ is a satisfying assignment of $\xnf{s_{n-i-1}}$ in $\SAT(\xnf{s_{n-i-1}})$, from Definition \ref{def:ltlf2dfa}. Then based on Lemma \ref{lem:propSat} and since $\eta_{n-i-1}=\omega_{n-i-1}\cdot\eta_{n-i}$ is true, we have that $\eta_{n-i-1}\models s_{n-i-1}$.
+\end{itemize}
+
+($\Rightarrow$) We first prove that $\eta\models\phi$ implies that there is a run $r$ of ${\A_{\phi}}$ on $\eta$. 
+If $n = 0$, Corollary \ref{coro:propSat} shows that there is a satisfying assignment $A$ of $\xnf{\phi}$ such that $\eta[0]\models L(A)$. From Definition \ref{def:ltlf2dfa}, $\phi\tran{\eta[0]}s$, where $s=\{X(A') | A'\in\SAT(\xnf{\phi})\}$, is a transition of the \TDFA. As a result, there is a run $r=s_0(=\phi)s$ of ${\A_{\phi}}$ on $\eta$.
+ 
+If $n>0$, according to Lemma \ref{lem:propSat}, $\eta\models\phi$ implies there is a satisfying assignment $A$ of $\xnf{\phi}$ such that $\omega_0\models L(A)$ and $\eta_1\models X(A)$. From Definition \ref{def:ltlf2dfa}, $\phi (=s_0)\tran{\omega_0}s_1$, where $s_1=\{X(A') | A'\in\SAT(\xnf{\phi})\}$, is a transition in the \TDFA. Recursively applying the above process to $\eta_i\models s_i(i\geq 1)$, one can prove there is a transition $s_i\tran{\omega_i}s_{i+1}$ in the \TDFA. As a result, we have $\eta\models\phi$, which implies there is a run $r$ of ${\A_{\phi}}$ on $\eta$.  
+
+Now we have that $\eta\models\phi$ implies there is a run $r=s_0...s_n s_{n+1}$ of ${\A_{\phi}}$ on $\eta$ and $\eta_i\models s_i\ for\ i=0...n$. When $i=n$, $\eta_n\models s_n$ i.e., $\omega_n\models s_n$ holds. According to Definition \ref{def:ltlf2dfa}, the transition $s_n\tran{\omega_n}s_{n+1}$ is an accepting transition. As a result, $r$ is an accepting run and $\eta$ is accepted by ${\A_{\phi}}$.
+\end{proof}
