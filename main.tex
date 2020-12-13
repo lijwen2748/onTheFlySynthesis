@@ -1,26 +1,45 @@
 \def\year{2021}\relax
-%File: formatting-instruction.tex
-\documentclass[letterpaper]{article} %DO NOT CHANGE THIS
+% File: formatting-instruction.tex
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage{aaai21} % DO NOT CHANGE THIS
+\usepackage{times} % DO NOT CHANGE THIS
+\usepackage{helvet} % DO NOT CHANGE THIS
+\usepackage{courier} % DO NOT CHANGE THIS
+\usepackage[hyphens]{url} % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm} % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\usepackage{natbib} % DO NOT CHANGE THIS OR ADD OPTIONS
+\usepackage{caption} % DO NOT CHANGE THIS OR ADD OPTIONS
+\frenchspacing % DO NOT CHANGE THIS
+\setlength{\pdfpagewidth}{8.5in} % DO NOT CHANGE THIS
+\setlength{\pdfpageheight}{11in} % DO NOT CHANGE THIS
 
-\usepackage{aaai21}
+%
+% PDF Info Is REQUIRED.
+% For /Author, add all authors within the parentheses,
+% separated by commas. No accents or commands.
+% For /Title, add Title in Mixed Case.
+% No accents or commands. Retain the parentheses.
+\pdfinfo{
+/Title (On-the-fly Synthesis for LTL over Finite Traces)
+/Author (Shengping Xiao, Jianwen Li, Geguang Pu)
+/TemplateVersion (2021.1)
+}
 
-
-\usepackage{natbib}
-%\usepackage{aaai18}  %Required
-\usepackage{times}  %Required
-\usepackage{helvet}  %Required
-\usepackage{courier}  %Required
-\usepackage{url}  %Required
-\usepackage{graphicx}  %Required
-\usepackage{mathtools}
-\usepackage{amsthm}
-\usepackage{amssymb} %KYR: added for Box, Diamond
 \usepackage{algorithm}
 \usepackage[noend]{algorithmic}
 \usepackage{xspace}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{amssymb} %KYR: added for Box, Diamond
 \usepackage{pgf}
-\usepackage{tikz}
-\usetikzlibrary{arrows,automata}
+%\usepackage{tikz}
+%\usetikzlibrary{arrows,automata}
+\usepackage{wasysym} 
+
+
 
 % Algorithmic modifications
 \makeatletter
@@ -29,17 +48,6 @@
 \newcommand{\algorithmicbreak}{\textbf{break}}
 \newcommand{\BREAK}{\STATE \algorithmicbreak}
 \makeatother
-
-
-
-\frenchspacing  %Required
-\setlength{\pdfpagewidth}{8.5in}  %Required
-\setlength{\pdfpageheight}{11in}  %Required
-%PDF Info Is Required:
-  \pdfinfo{
-/Title (On-the-fly Synthesis for LTLf over finite traces)
-/Author (Shengping Xiao, Jianwen Li, Geguang Pu)}
-\setcounter{secnumdepth}{0}  
 
 \newcommand{\N}{\mathcal{N}} \newcommand{\R}{\mathcal{R}} \newcommand{\A}{\mathcal{A}}
 \newcommand{\U}{\mathcal{U}} \newcommand{\V}{\mathcal{V}} \renewcommand{\P}{\mathcal{P}}
@@ -83,37 +91,68 @@
 \newcommand{\cl}{{\sf cl}\xspace}
 \newcommand{\allsat}{{\sf AllSat}\xspace}
 \newcommand{\aaltaf}{{\sf aaltaf}\xspace}
-\newcommand{\tool}{{\sf Win}\xspace}
+\newcommand{\tool}{{\sf Synthesis}\xspace}
 \newcommand{\syft}{{\sf SYFT}\xspace}
-\newcommand{\lisasyft}{{\sf LISASYFT}\xspace}
+\newcommand{\lisasyft}{{\sf LISASYNT}\xspace}
 \newcommand{\mona}{{\sf MONA}\xspace}
 \newcommand{\spot}{{\sf Spot}\xspace}
+\newcommand{\toolname}{{\sf OLFS}\xspace}
 
 
 
 \begin{document}
+%\linenumbers
 
 % The file aaai.sty is the style file for AAAI Press 
 % proceedings, working notes, and technical reports.
 %
 
-\title{On-the-fly Synthesis for $\ltl$ over finite traces}
+\title{On-the-fly Synthesis for LTL over Finite Traces}
 
 
 %\thanks{Work supported in part by NSF CAREER Award CNS-1552934 and NASA ECF NNX16AR57G.}
 
+%
+\author {
+    % Authors
+    Shengping Xiao\textsuperscript{\rm 1},
+    Jianwen Li\textsuperscript{\rm 1}\thanks{ Corresponding author (lijwen2748@gmail.com)},
+    Shufang Zhu\textsuperscript{\rm 2,\rm 3}, 
+    Yingying Shi\textsuperscript{\rm 1},
+    Geguang Pu\textsuperscript{\rm 1} and
+    Moshe Vardi\textsuperscript{\rm 4} \\
+}
+\affiliations {
+    % Affiliations
+    \textsuperscript{\rm 1}East China Normal University,
+    \textsuperscript{\rm 2}Sapienza Università di Roma,\\
+    \textsuperscript{\rm 3}Shanghai Trusted Industrial Control Platform Co., Ltd,
+    \textsuperscript{\rm 4}Rice University 
+    \iffalse
+    10175101164@stu.ecnu.edu.cn, lijwen2748@gmail.com,
+    shufangzhu.szhu@gmail.com,
+    51184501042@stu.ecnu.edu.cn,
+    ggpu@sei.ecnu.edu.cn,
+    vardi@cs.rice.edu
+    \fi
+}
+
+
 \iffalse
-\author{Jianwen Li, Kristin Y. Rozier\\ Iowa State University\\ Ames, IA, USA\\\{jianwen,kyrozier\}@iastate.edu 
-\And Geguang Pu, Yueling Zhang\\ East China Normal University\\ Shanghai, China\\\{ggpu,ylzhang\}@sei.ecnu.edu.cn
-\And Moshe Y. Vardi\\ Rice University\\ Houston, TX, USA\\ vardi@cs.rice.edu}
+\author{Shengping Xiao, Jianwen Li, Yingying Shi, Geguang Pu \ \ \ \ Shufang Zhu\ \ \ \                 Moshe Vardi\\
+ East China Normal University\ \ \ \ Sapienza Università di Roma \ \ \ \  Rice University\\
+ Shanghai, China \\
+}
 \fi
+
+
 
 \maketitle
  
 
 
 \begin{abstract}
-In this paper, we present a new synthesis framework based on the on-the-fly \dfa construction for \ltl over finite traces~(\ltlf). Extant approaches rely heavily on the generation of the \dfa w.r.t. the input \ltlf formula, whose size can be doubly exponential to the size of the formula in the worst case. Under those approaches, the synthesis cannot be conducted unless the whole \dfa is completely constructed, which is not only inefficient but also not scalable in practice. Indeed, the \dfa construction becomes the main bottleneck for \ltlf synthesis from previous researches. To mitigate this drawback, we follow two steps in this paper: Firstly, we present several light-weight pre-processing techniques such that the synthesis result can be determined even without \dfa generation; Secondly, we propose to achieve the synthesis together with the on-the-fly \dfa construction such that the synthesis result can be obtained before the whole \dfa construction is terminated. The on-the-fly \dfa construction is implemented using the \SAT-based techniques for automata generation in the previous literature. We compared our new approach with the traditional ones on an extensive benchmark for \ltlf synthesis. Experimental results showed that our new approach has a significant advantage on the synthesis performance in terms of the scalability. 
+We present a new synthesis framework based on the on-the-fly \dfa construction for \ltl over finite traces~(\ltlf). Extant approaches rely heavily on the construction of the complete \dfa w.r.t. the input \ltlf formula, whose size can be doubly exponential to the size of the formula in the worst case. Under those approaches, the synthesis cannot be conducted unless the whole \dfa is completely constructed, which is not only inefficient but also not scalable in practice. Indeed, the \dfa construction \emph{is} the main bottleneck of \ltlf synthesis in prior work. To mitigate this challenge, we follow two steps in this paper: Firstly, we present several light-weight pre-processing techniques such that the synthesis result can be obtained even without \dfa construction; Secondly, we propose to achieve the synthesis together with the on-the-fly \dfa construction such that the synthesis result can be obtained before constructing the whole \dfa. The on-the-fly \dfa construction is implemented using the \SAT-based techniques for automata generation. We compared our new approach with the traditional ones on extensive \ltlf synthesis benchmarks. Experimental results showed that the pre-processing techniques have a significant advantage on the synthesis performance in terms of scalability, and the on-the-fly synthesis is able to complement extant approaches on both realizable and unrealizable cases. 
 \end{abstract}
 
 
@@ -125,17 +164,23 @@ In this paper, we present a new synthesis framework based on the on-the-fly \dfa
 
 \input{theory.tex}
 
-%\input{experiment.tex}
+\input{experiment.tex}
 
-%\input{conclusion.tex}
+\input{conclusion.tex}
 
 
+
+
+%\newpage
+\section{Acknowledgment}
+We thank anonymous reviewers for useful comments. Jianwen Li and Geguang Pu are supported by  Science and Technology Commitment of Shanghai (\#20PJ1403500 and \#19511103602) and NSFC (\#62002118, \#61632005 and \#61532019). Shufang Zhu is supported by ERC Advanced Grant WhiteMech (\#834228) and EU ICT-48 2020 project TAILOR (\#952215). Moshe Vardi is supported by NSF grants IIS-1527668, CCF-1704883,
+IIS-1830549, and an award from the Maryland Procurement Office.
 
 %\bibliographystyle{aaai21}
-
-\newpage
 \bibliography{ok,cav}
-\input{appendix.tex}
+
+%\newpage
+%\input{appendix.tex}
 
 
 

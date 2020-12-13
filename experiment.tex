@@ -1,4 +1,25 @@
 
 \section {Experimental Evaluation}\label {sec:exp}
 
+\noindent\textbf{Tools} We implemented both the pre-processing and on-the-fly synthesis techniques in the tool \toolname. We compared the results with extant \ltlf-synthesis tools \syft \cite{ZTLPV17} and \lisasyft \cite{BLTV20}. Both tools implement the synthesis approach proposed in \cite{GV15}, but distinguish with each other by using different complete \dfa constructions, monolithic and decompositional, respectively. All three tools were run with their default parameters. 
+
+\noindent\textbf{Benchmarks}  We benchmark the experiment with the 430 instances presented in \cite{BLTV20}. We also select two classes of patterns $U$ and $GF$, which originate from~\cite{RV07} and are shown in Figure \ref{fig:preprocess-1} and Figure \ref{fig:preprocess-2} respectively, to test the efficiency of pre-processing techniques.
+
+\noindent\textbf{Platform} We ran the experiments on a RedHat 6.0 cluster with 2304 processor cores
+in 192 nodes (12 processor cores per node), running at 2.83 GHz with 48GB of
+RAM per node. 
+Each tool executed on a dedicated node with a timeout of 10 minutes, measuring execution time with Unix \texttt{time}. Excluding timeouts, all solvers found correct verdicts for all formulas. All artifacts are available in the supplemental materials.
+
+
+
+
+\noindent\textbf{Results} Figure \ref{fig:preprocess-1} and Figure \ref{fig:preprocess-2} show the results on the $U$ and $GF$ patterns to evaluate the power of the pre-processing techniques presented in the paper. We carefully divide the atomic sets such that the synthesis on the $U$ pattern formulas are all realizable while the results for the $GF$ pattern formulas are all unrealizable. By applying Theorem \ref{thm:winning-1} to synthesis the $U$ patterns, \toolname is able to achieve a linear-cost performance. Meanwhile, \syft and \lisasyft reach the timeout when the pattern length $n$ is greater than 18 (see Figure \ref{fig:preprocess-1}). Analogously, Theorem \ref{thm:failure-1} enables \toolname to gain a linear-cost performance on the synthesis of the $GF$ patterns, while \syft and \lisasyft perform exponentially worse on such patterns (see Figure \ref{fig:preprocess-2}). 
+
+Figure \ref{fig:otf} shows the comparison results between on-the-fly synthesis approach and the classical one presented in \cite{GV15}, represented by tools \syft and \lisasyft, on the 430 instances from \cite{BLTV20}. From the figure, the on-the-fly approach cannot outperform the classical one. In total, \toolname solves 149 out of 430 instances, while \syft and \lisasyft solve the number of 281 and 288 respectively. There are 50 of 149 instances for that \toolname can solve faster than the other two tools, as shown in Figure \ref{fig:otf}. Therefore, we conclude that the on-the-fly approach can complement the extant one. 
+
+The reason why the current on-the-fly synthesis cannot perform better, is that a lot of time is consumed by the single \tdfa state generation. From Definition \ref{def:ltlf2dfa}, each state of the \tdfa belongs to $2^{2^{cl(\phi)}}$, where $\phi$ is the input formula. The \SAT-based technique shown in \cite{LRPZV19} is good at computing transitions for the \NFA, but the composition of the non-deterministic states so as to obtain the deterministic one is still over-loaded. From our experiments, we observe that most instances that cannot be solved by \toolname fall into this part. We leave the improvement of the on-the-fly synthesis to our future work.
+
+
+
+
 

@@ -1,7 +1,43 @@
 \section{Appendix}
 \subsection{Proof of Theorem \ref{thm:ltlf2tdfa}}
 
-We first introduce the following lemma to prove Theorem \ref{thm:ltlf2tdfa}.
+We first introduce the necessary preliminaries to prove this theorem. 
+
+To leverage \SAT solvers for the automata construction, we first need to consider \ltlf formulas as propositional formulas. The motivation comes from treating all temporal subformulas of $\phi$ as atomic propositions. 
+
+\begin{definition}[Propositional Atoms]\label{def:pa}
+For an \ltlf formula $\phi$, we define the set of propositional atoms, $\PA(\phi)$, recursively as follows.
+\begin{itemize}
+	\item If $\phi$ is an atom, Next, weak Next, Until or Release formula, $\PA(\phi)=\{\phi\}$;
+	\item If $\phi = (\neg \psi)$, $\PA(\phi)= \PA(\psi)$;
+	\item If $\phi = (\phi_1 \wedge \phi_2)$ or $(\phi_1 \vee \phi_2)$, $\PA(\phi) = \PA(\phi_1) \cup \PA(\phi_2)$.
+\end{itemize}
+\end{definition}
+
+Consider the formula $\phi$ = $(a \wedge ((\neg c \wedge a)\U b) \wedge (c \wedge \X (a \vee b)))$ as an example. According to Definition \ref{def:pa}, we have $\PA(\phi)=\{a, c, (\neg c \wedge a)\U b), (\X (a \vee b))\}$. Now we define the propositional formulas over propositional atoms w.r.t. an \ltlf formula.
+
+\begin{definition}[Propositional Formulas]\label{def:pf}
+Given an \ltlf formula $\phi$, let $\phi^{p}$ be a propositional formula over $\PA(\phi)$. 
+\end{definition}
+
+Consider $\phi$ = $(a \wedge ((\neg c \wedge a)\U b) \wedge (c \wedge \X (a \vee b)))$. From Definition \ref{def:pf}, the corresponding propositional formula $\phi^p = (a \wedge p_1) \wedge (c \wedge p_2)$, in which $p_1, p_2$ are two Boolean variables representing the truth values of $((\neg c \wedge a)\U b)$ and $(c \wedge \X (a \vee b))$. We define the \emph{next normal form} for an \ltlf formula, whose corresponding propositional formula is the actual input to \SAT solvers.
+
+\begin{definition}[neXt Normal Form]\label{def:xnf}
+For an \ltlf formula $\phi$, we define its Next Normal Form, i.e., $\xnf(\phi)$, recursively as follows. 
+\begin{itemize}
+\item $\xnf{\tt} = \tt$ and $\xnf{\ff} = \ff$;
+\item If $\phi$ is a literal, $\xnf{\phi} = \phi \wedge \X(\tt)$;
+\item If $\phi = \X(\psi)$ or $\phi = \N(\psi)$, $\xnf{\phi} = \X(\psi)$;
+\item If $\phi = (\phi_1 \wedge \phi_2)$, $\xnf{\phi} = \xnf{\phi_1}\wedge\xnf{\phi_2}$;
+\item If $\phi = (\phi_1 \vee \phi_2), \xnf{\phi} = \xnf{\phi_1}\vee \xnf{\phi_2}$; 
+\item If $\phi = (\phi_1 \U \phi_2), \xnf{\phi} = \xnf{\phi_2} \vee (\xnf{\phi_1} \wedge \X{\phi})$; 
+\item If $\phi = (\phi_1 \R \phi_2), \xnf{\phi} = \xnf{\phi_2}\wedge (\xnf{\phi_1} \vee \X{\phi})$.
+\end{itemize}
+\end{definition}
+
+By restricting the \ltlf formula $\phi$ to the \XNF, we can obtain a satisfying assignment of $\phi^{p}$ with the help of the SAT solver.
+For a satisfying assignment $A$, we define $X(A)=\{\theta\ |\ \X\theta\in A\}$ and $L(A) =\{l\ |\ l \in A \textit{ is a literal}\}$. Also for the sake of simplicity, \textbf{we mix the usage of $X(A)$ to denote the conjunction of all elements in the set, i.e., $\bigwedge_{\psi_i\in X(A)}\psi_i$. The same applies to $L(A)$.}
+The following lemma describes the relationship between an \ltlf formula and the satisfying assignment of its corresponding propositional formula.
 
 \begin{lemma}\label{lem:propSat}
 Given an \ltlf formula $\phi$ in the \XNF and a finite trace $\eta\in\Sigma^+$ with $|\eta|>1$, $\eta\models\phi$ holds iff there is a satisfying assignment $A$ of $\phi$ such that $\eta[0]\models L(A)$ and $\eta_1\models X(A)$.

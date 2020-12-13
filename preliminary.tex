@@ -1,28 +1,23 @@
-
-%\section {Preliminaries}\label{sec:pre}
-
 \section{Preliminaries}\label{sec:pre}
 Given a set $\mathcal{P}$ of atomic propositions, an \ltlf formula
 $\phi$ has the form:
-
 %$\phi ::= \true\ |\ \ff\ |\ p\ |\ \neg \phi\ |\ \phi\vee\phi\ |\ \phi\wedge\phi\|\ X\phi\ |\ N\phi\ |\ \phi U\phi\ |\ \phi R\phi$,
-$\ \ \ \ \ \ \ \ \ \ \ \phi ::= \true\ |\ p\ |\ \neg \phi\ |\ \phi\wedge\phi\ |\ \X\phi\ |\ \phi \U\phi$,\\
+$\ \ \ \ \ \ \ \ \ \ \ \phi ::= \true\ |\ p\ |\ \neg \phi\ |\ \phi\wedge\phi\ |\ \ocircle \phi\ |\ \phi_1 \U\phi_2$,\\
 %
-where $\true$ is true, $\neg$ is the negation operator, $\wedge$ is the and operator, $\X$ is the strong Next operator 
-and  $\U$ is the Until operator. We also have the corresponding dual operators $\ff$ (false) for $\true$, $\vee$ for $\wedge$, 
-$\N$ (weak Next) for $\X$ and $\R$ (Release) for $\U$. A \emph{literal} is an atom $p\in\mathcal{P}$ or its negation ($\neg p$).
-Moreover, we use the notation $\G\phi$ (Globally) and $\F\phi$ (Eventually) to represent $\ff \R\phi$ and $\true \U\phi$.
+where $\true$ is true, $p \in \P$ is an atomic proposition, $\neg$ is the \emph{negation} operator, $\wedge$ is the \emph{and} operator, $\ocircle$ is the strong \emph{Next} operator 
+and  $\U$ is the \emph{Until} operator. We also have the corresponding dual operators $\ff$ (false) for $\true$, $\vee$~(or) for $\wedge$, 
+$\N$~(weak Next) for $\ocircle$ and $\R$ (Release) for $\U$. A \emph{literal} is an atom $p\in\mathcal{P}$ or its negation ($\neg p$).
+Moreover, we use notations $\G\phi$ (Globally) and $\F\phi$ (Eventually) to represent $\ff \R\phi$ and $\true \U\phi$, respectively.
 %We have $N\phi \equiv \neg X\neg \phi$ and
 %$\phi_1 R\phi_2\equiv \neg(\neg\phi_1 U\neg\phi_2)$. Note that in %$\ltlf$, $X\phi\equiv N\phi$ is not true, which is however the case %in LTL. 
-Notably, $\X$ is the standard \emph{next} operator, while $\N$ is \emph{weak next}; 
-$\X$ requires the existence of a successor instance, while $\N$ does not. 
+Notably, $\ocircle$ is the standard \emph{Next} operator, while $\N$ is \emph{weak Next}; 
+$\ocircle$ requires the existence of a successor instance, while $\N$ does not. 
 Thus $\N\phi$ is always true in the last instance of a finite trace, since no successor exists there.
 This distinction is specific to \ltlf.
 
 \ltlf formulas are interpreted over finite traces \cite{GV13}.
-Given an atom set $\mathcal{P}$, we define $\Sigma = 2^{\mathcal{P}}$ be  the family of sets of atoms. Let
-$\eta\in\Sigma^+$ be a finite nonempty trace, with $\eta=\sigma_0\sigma_1\ldots\sigma_n$. we use
-$|\eta|=n+1$ to denote the length of $\eta$. Moreover, for $0\leq
+Given an atomic set $\mathcal{P}$, we define $\Sigma = 2^{\mathcal{P}}$ be  the family of sets of atoms. Let
+$\eta\in\Sigma^+$ be a finite nonempty trace, with $\eta=\sigma_0\sigma_1\ldots\sigma_n$. $|\eta|=n+1$ denotes the length of $\eta$. Moreover, for $0\leq
 i\leq n$, we denote $\eta[i]$ as the i-th position of $\eta$, and 
 $\eta_i$ to represent $\sigma_i\sigma_{i+1}\ldots\sigma_n$, which is
 the suffix of $\eta$ from position~$i$. We define the satisfaction relation $\eta\models\phi$ as follows:
@@ -32,9 +27,9 @@ the suffix of $\eta$ from position~$i$. We define the satisfaction relation $\et
   \item $\eta\models\neg\phi$, if $\eta\not\models\phi$;
   \item $\eta\models\phi_1\wedge\phi_2$,  if $\eta\models\phi_1$ and $\eta\models\phi_2$;
   %\item If $\phi=\phi_1\vee\phi_2$, $\eta\models\phi$ if $\eta\models\phi_1$ or $\eta\models\phi_2$.
-  \item $\eta\models \X\phi$ if $|\eta|>1$ and $\eta_1\models\psi$;
+  \item $\eta\models \ocircle\phi$ if $|\eta|>1$ and $\eta_1\models\phi$;
   %\item If $\phi=N\psi$, $\eta\models\phi$ if $|\eta|>1$ implies $\eta_1\models\psi$;
-  \item $\eta\models (\phi_1 \U\phi_2)$, if there exists $0\leq i < |\eta|$
+  \item $\eta\models \phi_1 \U\phi_2$, if there exists $0\leq i < |\eta|$
   such that $\eta_i\models\phi_2$ and for every $0\leq j < i$ it holds that $\eta_j\models\phi_1$;
  % \item If $\phi=(\phi_1 R\phi_2)$, $\eta\models\phi$ if for every $0\leq i <|\eta|$ either $\eta_i\models\phi_2$ or for
   %some $0\leq j < i$ it holds that $\eta_j\models\phi_1$.
@@ -42,19 +37,19 @@ the suffix of $\eta$ from position~$i$. We define the satisfaction relation $\et
 
 
 \begin{definition}[\ltlf Synthesis]\label{def:synthesis}
-Let $\phi$ be an \ltlf formula with the atomic set $\P$ and $\X,\Y$ be two disjoint atomic sets such that $\X\cup \Y= \P$. $\X$ is the set of input variables controlled by the environment and $\Y$ is the set of output variables controlled by the system. $\phi$ is realizable with respect to $\langle \X,\Y\rangle$
+Let $\phi$ be an \ltlf formula with the atomic set $\P$ and $\X,\Y$ be two atomic sets such that $\X\cap \Y=\emptyset$ and $\X\cup \Y= \P$. $\X$ is the set of input variables controlled by the environment and $\Y$ is the set of output variables controlled by the system. $\phi$ is realizable with respect to $\langle \X,\Y\rangle$ if
 \begin{itemize}
-\item for the \textbf{Environment-first} synthesis, if there exists a strategy $g: (2^\X)^+ \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k \geq 0$ such that $\rho\models\phi$ is true, where $\rho=(X_0\cup g(X_0)),(X_1\cup g(X_0,X_1)),\cdots,(X_k\cup g(X_0,\cdots,X_k))$.
-\item for the \textbf{System-first} synthesis, if there exists a strategy $g: (2^\X)^* \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k \geq 0$ such that $\rho\models\phi$ is true, where $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)),\cdots,(X_k\cup g(X_0,\cdots,X_{k-1}))$. ($\epsilon$ means the empty trace.) 
+\item for the \textbf{Environment-first} synthesis, there exists a strategy $g: (2^\X)^+ \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k \geq 0$ such that $\rho\models\phi$ is true, where $\rho=(X_0\cup g(X_0)),(X_1\cup g(X_0,X_1)),\cdots,(X_k\cup g(X_0,\cdots,X_k))$.
+\item for the \textbf{System-first} synthesis, there exists a strategy $g: (2^\X)^* \to 2^\Y$, such that for an arbitrary infinite sequence $\lambda = X_0, X_1, \cdots \in (2^\X)^\omega$ of propositional interpretations over $\X$, we can find $k > 0$ such that $\rho\models\phi$ is true, where $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)),\cdots,(X_k\cup g(X_0,\cdots,X_{k-1}))$. ($\epsilon$ means the empty trace.) 
 \end{itemize}
 \end{definition}
 
-In this paper, we focus on the \textbf{System-first} \ltlf synthesis. The extant solutions originates from \citep{GV15}, which has to construct the \dfa w.r.t. the formula at first, and then computes the winning state set back from the accepting states to see whether the initial state is included in such set. If so, the result is realizable; otherwise, it is unrealizable. Readers are referred to the literature for more details. 
+In this paper, we focus on the \textbf{System-first} \ltlf synthesis. Extant solutions originate from the approach given in \citep{GV15}, which has to construct the \dfa w.r.t. the formula at first, and then computes the winning state set back from the accepting states to check whether the initial state is included in such set. The result is realizable if this is the case; otherwise, it is unrealizable. Readers are referred to the literature for more details. 
 %Also, we fix the notations $\X$ and $\Y$ for the variables controlled by the environment and system respectively in the \ltlf synthesis.
 
 \noindent\textbf{Notations.} 
-We say an \ltlf formula is in \emph{Negated Normal Form} (\NNF), if the negation operator appears only in front of an atom. It should be noted that every \ltlf formula can be converted into its \NNF in linear time. We use $cl(\phi)$ to denote the set of subformulas of $\phi$. %Let $A$ be a set of \ltlf formulas, we denote $\bigwedge A$ be the formula $\bigwedge_{\psi\in A}\psi$.
-The two \ltlf formulas $\phi_1,\phi_2$ are semantically equivalent, denoted as $\phi_1\equiv\phi_2 $, iff for every finite trace $\eta$, $\eta\models\phi_1$ iff $\eta\models\phi_2$.  Obviously, we have $(\phi_1\vee\phi_2)\equiv \neg (\neg\phi_1 \wedge\neg \phi_2)$, $\N\psi\equiv \neg \X\neg\psi$ and $(\phi_1 \R\phi_2)\equiv \neg (\neg\phi_1 \U\neg \phi_2)$.
+We say an \ltlf formula is in \emph{Negation Normal Form} (\NNF), if the negation operator appears only in front of an atom. It should be noted that every \ltlf formula can be converted into its \NNF in linear time. We use $cl(\phi)$ to denote the set of subformulas of $\phi$. %Let $A$ be a set of \ltlf formulas, we denote $\bigwedge A$ be the formula $\bigwedge_{\psi\in A}\psi$.
+The two \ltlf formulas $\phi_1,\phi_2$ are semantically equivalent, denoted as $\phi_1\equiv\phi_2 $, iff for every finite trace $\eta$, $\eta\models\phi_1$ iff $\eta\models\phi_2$.  Obviously, we have $(\phi_1\vee\phi_2)\equiv \neg (\neg\phi_1 \wedge\neg \phi_2)$, $\N\phi\equiv \neg \ocircle\neg\phi$ and $(\phi_1 \R\phi_2)\equiv \neg (\neg\phi_1 \U\neg \phi_2)$.
 
 
 
