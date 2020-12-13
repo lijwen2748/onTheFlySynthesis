@@ -60,7 +60,7 @@
 \newcommand{\ltlf}{\textsf{LTL}$_f$\xspace}
 \newcommand{\ltl}{\textsf{LTL}\xspace}
 \newcommand{\ff}{\textsf{ff}\xspace}
-\renewcommand{\tt}{\textsf{tt}\xspace}
+%\renewcommand{\tt}{\textsf{tt}\xspace}
 \newcommand{\true}{\textsf{tt}\xspace}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -269,7 +269,7 @@ To that end, an extant \ltlf-satisfiability solver, e.g., \aaltaf~\cite{LRPZV19}
 \begin{definition}\label{def:satOnce}
 Given an \ltlf formula $\phi$ and $\omega \in 2^{\mathcal{P}}$, we define the predicate $\satOnce (\omega, \phi)$ is true iff 
 \begin{itemize}
-	\item $\phi$ is $\tt$; or
+	\item $\phi$ is $\true$; or
 	\item $\phi$ is an atom and $\phi \in \omega$; or 
 	\item $\phi = \neg\psi$ and $\neg \satOnce (\omega, \psi)$ is true; or
 	\item $\phi = \phi_1\wedge\phi_2$ and $\satOnce (\omega, \phi_1)$ and $\satOnce (\omega, \phi_2)$ are true; or
@@ -297,8 +297,8 @@ Consider the formula $a\U b$ with $\X=\{a\}$ and $\Y=\{b\}$ as an example. Let $
 \begin{definition}[Formula Projection]\label{def:fp}
 Given an \ltlf formula $\phi$ in \NNF with the atomic set $\mathcal{P}$, we define its projection under $\mathcal{P}$, denoted as $\phi |_\mathcal{P}$, is a Boolean formula as follows:
 \begin{itemize}
-	\item $\phi|_\mathcal{P} = \phi$ if $\phi$ is $\tt$, $\ff$ or a literal;
-	\item $\phi|_\mathcal{P} = \tt$ if $\phi = \ocircle\psi$ or $\phi = \N\psi$;
+	\item $\phi|_\mathcal{P} = \phi$ if $\phi$ is $\true$, $\ff$ or a literal;
+	\item $\phi|_\mathcal{P} = \true$ if $\phi = \ocircle\psi$ or $\phi = \N\psi$;
 	\item $\phi|_\mathcal{P} = \phi_1|_\mathcal{P} \wedge \phi_2|_\mathcal{P}$ if $\phi = \phi_1\wedge\phi_2$;
 	\item $\phi|_\mathcal{P} = \phi_1|_\mathcal{P} \vee \phi_2|_\mathcal{P}$ if $\phi = \phi_1\vee\phi_2$;
 	\item $\phi|_\mathcal{P} = \phi_1|_\mathcal{P} \vee \phi_2|_\mathcal{P}$ if $\phi = \phi_1\U\phi_2$;
