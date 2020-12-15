@@ -125,7 +125,7 @@
 \affiliations {
     % Affiliations
     \textsuperscript{\rm 1}East China Normal University,
-    \textsuperscript{\rm 2}Sapienza Università di Roma,\\
+    \textsuperscript{\rm 2}Sapienza Universit\`a di Roma,\\
     \textsuperscript{\rm 3}Shanghai Trusted Industrial Control Platform Co., Ltd,
     \textsuperscript{\rm 4}Rice University 
     \iffalse
@@ -140,7 +140,7 @@
 
 \iffalse
 \author{Shengping Xiao, Jianwen Li, Yingying Shi, Geguang Pu \ \ \ \ Shufang Zhu\ \ \ \                 Moshe Vardi\\
- East China Normal University\ \ \ \ Sapienza Università di Roma \ \ \ \  Rice University\\
+ East China Normal University\ \ \ \ Sapienza Universit\`a di Roma \ \ \ \  Rice University\\
  Shanghai, China \\
 }
 \fi
@@ -164,7 +164,7 @@ While standard Linear Temporal Logic~(\ltl) is interpreted on infinite traces~\c
 
 Given an \ltlf formula $\phi$ with input/output atomic proposition sets $\X,\Y$ such that $\X\cap \Y=\emptyset$ and $\mathcal{P}=\X\cup\Y$ is the set of atomic propositions of $\phi$, the synthesis problem asks whether every finite trace generated as the result of a game between the environment controlling the input propositions and the system controlling the output propositions can satisfy the formula $\phi$ (see Definition \ref{def:synthesis} for details). Extant solutions rely on a reduction from \ltlf synthesis to \dfa (Deterministic Finite Automata) game~\citep{GV15}. Explicitly, the \dfa that recognizes the same language as the \ltlf formula has to be constructed at first. Then a backward fixpoint calculation is performed on the generated \dfa from the set of accepting states. The calculation initially marks the accepting states as the \emph{winning} states, and recursively extends this winning set based on the current information. If finally the initial state of the \dfa is included in the winning set, we conclude that the formula $\phi$ is realizable w.r.t. the input/output sets $\X$ and $\Y$. Otherwise, the formula is unrealizable. It is well-known that the \ltlf-to-\dfa translation is the most demanding part of the computation, as the size of the generated \dfa can be doubly exponential to the size of the formula \citep{KV01d}. Indeed, the \dfa construction is the main bottleneck in the current approach \cite{ZTLPV17}.
 
-Several optimizations for \dfa construction have been proposed. \citep{ZTLPV17} has shown using \mona \citep{HJJKPRS95,EKM98} to symbolically construct the minimal \dfa can be much faster than using \spot \citep{DP04}, which employs an explicit construction. Later, \citep{ZhuPV19} performed an extensive comparison over different encodings from \ltlf to the input format of \mona to look for the best-performing encoding, and showed the outperformance of First Order Logic~(FOL) encoding. \citep{TV19} introduced a partitioning technique to decompose the generation of a large \dfa into small ones \citep{MSL18}. Recently, \citep{BLTV20} combined both of the explicit and symbolic \dfa state-space representations and successfully achieved a better \dfa construction than those using only one single representation. Nonetheless, none of these techniques above can avoid the double exponential-up cost, as the \dfa construction is the indispensable part for \ltlf synthesis. Therefore, the question arises up whether it is possible to solve \ltlf synthesis without generating the whole \dfa.
+Several optimizations for \dfa construction have been proposed. \citep{ZTLPV17} has shown using \mona \citep{HJJKPRS95,EKM98} to symbolically construct the minimal \dfa can be much faster than using \spot \citep{DP04}, which employs an explicit construction. Later, \citep{ZhuPV19} performed an extensive comparison over different encodings from \ltlf to the input format of \mona to look for the best-performing encoding, and showed the outperformance of First Order Logic~(FOL) encoding. \citep{TV19} introduced a partitioning technique to decompose the generation of a large \dfa into small ones \citep{MSL18}. Recently, \citep{BLTV20} combined both of the explicit and symbolic \dfa state-space representations and successfully achieved a better \dfa construction than those using only one single representation. Nonetheless, none of these techniques above can avoid the double exponential-up cost, as the \dfa construction is the indispensable part for \ltlf synthesis. Therefore, the question raises up whether it is possible to solve \ltlf synthesis without generating the whole \dfa.
 
 We present here a novel approach to achieve this goal. First of all, we present three light-weight pre-processing techniques for \ltlf synthesis, which can be easily implemented and with low running-cost. Notably, such pre-processing techniques can be performed directly on the input formula even without constructing the \dfa. As a result, they can be integrated into all other available \ltlf synthesis approaches. Secondly, we propose a new synthesis framework that is based on \dfa construction \emph{on the fly}, i.e., the \dfa states are created only as necessary. We start from the initial state $s_0$ (that is the input formula $\phi$ under our framework) and then proceed forward to continuously generate successor states when necessary. As soon as the new created state is determined as \emph{winning/failure}, a backtrack procedure is invoked to determine whether the predecessors are winning/failure based on stored information. As soon as the initial state can be determined as winning (resp. failure), the realizable (resp. unrealizable) result can be concluded. In the worst case, the algorithm returns unrealizable when the whole \dfa is constructed. 
 
@@ -258,7 +258,7 @@ One can see that our on-the-fly approach is able to return either realizable or 
 
 %\input{theory.tex}
 \section{Pre-processing Techniques for \ltlf Synthesis}
-In this section, we introduce three pre-processing techniques for \ltlf synthesis, which can be evaluated immediately on the given \ltlf formula w.r.t. the atomic set $\mathcal{P}=\X\cup\Y$. First, the following Lemma is straightforward according to the \ltlf semantics and Definition \ref{def:synthesis}.
+In this section, we introduce three pre-processing techniques for \ltlf synthesis, which can be evaluated immediately on the given \ltlf formula w.r.t. the atomic set $\mathcal{P}=\X\cup\Y$. First, the following Theorem is straightforward according to the \ltlf semantics and Definition \ref{def:synthesis}.
 
 \begin{theorem}\label{thm:sat-syn}
 	If the \ltlf formula $\phi$ is unsatisfiable, then $\phi$ is unrealizable; If $\phi$ is valid, then $\phi$ is realizable.
@@ -312,7 +312,7 @@ Given an \ltlf formula $\phi$ and a finite trace $\eta$, $\eta\models\phi$ impli
 The proof can be done by induction over the structure of $\phi$, which is omitted here. Lemma \ref{lem:fp} indicates that $\phi|_\mathcal{P}$ is sufficient to capture all the first-position elements of $\phi$'s accepting traces. Inspired by that, we have the following theorem that can help with identifying a formula being unrealizable. 
 
 \begin{theorem}\label{thm:failure-1}
-Given an \ltlf formula $\phi$ with the atomic set $\X\cup \Y$, if there does not exists $Y\in 2^{\Y}$ such that $Y\models \phi|_{\X\cup\Y}$, then $\phi$ is unrealizable. 
+Given an \ltlf formula $\phi$ with the atomic set $\X\cup \Y$, if there does not exist $Y\in 2^{\Y}$ such that $Y\models \phi|_{\X\cup\Y}$, then $\phi$ is unrealizable. 
 \end{theorem}
 \begin{proof}
 Assume $\phi$ is realizable. According to Definition \ref{def:synthesis}, there exists a winning strategy $g$ such that for an arbitrary infinite sequence $X_0,X_1,\ldots\in (2^{\X})^{\omega}$, there exists $k\geq 0$ such that $\rho=(X_0\cup g(\epsilon)),(X_1\cup g(X_0)), \ldots, (X_k\cup g(X_{k-1}))$ satisfies $\phi$. Let $Y = g(\epsilon)$, and based on Lemma \ref{lem:fp}, we have that $Y\cup X_0\models \phi|_{\X\cup\Y}$ for every $X_0\in 2^{\X}$. As the consequence, it is required that $Y\models \phi|_{\X\cup\Y}$ is true. However, we already know that $Y\models \phi|_{\X\cup\Y}$ does not hold for any $Y\in 2^{\Y}$, which causes the contradiction. Therefore, we prove that $\phi$ is unrealizable.
@@ -377,7 +377,7 @@ Given an \ltlf formula $\phi$, the corresponding \TDFA ${\A_{\phi}}$ is a tuple 
 
 \end{definition}
 
-From Definition \ref{def:ltlf2dfa}, a \tdfa state $s$ is a set of set of subformulas of the input formula $\phi$. \textbf{For the description convenience, we mix the usage of the state and the formula in the following.} That is to say, $s$ represents the formula $\bigvee_{q\in s}\bigwedge_{\psi\in q} \psi$, and vice versa. The following theorem guarantees the correctness of the \tdfa construction shown in Definition \ref{def:ltlf2dfa}. 
+From Definition \ref{def:ltlf2dfa}, a \tdfa state $s$ is a set of sets of subformulas of the input formula $\phi$. \textbf{For the description convenience, we mix the usage of the state and the formula in the following.} That is to say, $s$ represents the formula $\bigvee_{q\in s}\bigwedge_{\psi\in q} \psi$, and vice versa. The following theorem guarantees the correctness of the \tdfa construction shown in Definition \ref{def:ltlf2dfa}. 
 
 \begin{theorem}\label{thm:ltlf2tdfa}
 Given an \ltlf formula $\phi$ and the \tdfa ${\A_{\phi}}$ constructed by Definition \ref{def:ltlf2dfa}, a finite trace $\eta\models\phi$ holds iff $\eta$ is accepted by ${\A_{\phi}}$. 
@@ -614,7 +614,7 @@ Based on the current achievement, we plan to introduce efficient heuristics to i
 %\newpage
 \section{Acknowledgment}
 %We thank anonymous reviewers for useful comments. 
-Jianwen Li and Geguang Pu are supported by  Science and Technology Commitment of Shanghai (\#20PJ1403500 and \#19511103602), NSFC (\#62002118, \#61632005 and \#61532019) and National Key Research and Development Program (\#2020AAA0107800). Shufang Zhu is supported by ERC Advanced Grant (\#834228) and EU ICT-48 2020 project (\#952215). Moshe Vardi is supported by NSF grants IIS-1527668, CCF-1704883,
+Jianwen Li and Geguang Pu are supported by  National Key Research and Development Program (\#2020AAA0107800), the Science and Technology Commitment of Shanghai, China (\#20PJ1403500 and \#19511103602) and NSFC (\#62002118, \#61632005 and \#61532019). Shufang Zhu is supported by ERC Advanced Grant (\#834228) and EU ICT-48 2020 project (\#952215). Moshe Vardi is supported by NSF grants IIS-1527668, CCF-1704883,
 IIS-1830549, and an award from the Maryland Procurement Office.
 
 %\bibliographystyle{aaai21}
